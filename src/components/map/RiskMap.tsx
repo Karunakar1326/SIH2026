@@ -5,7 +5,8 @@ import { habitations } from '@/data/habitations';
 import { historicalEvents } from '@/data/historical-events';
 import { safeSites } from '@/data/safe-sites';
 import { riskColor } from '@/utils/helpers';
-import { Layers, Maximize2, Minimize2, LocateFixed, ShieldAlert } from 'lucide-react';
+import { getGraphHopperRoute, type GraphHopperRouteResult } from '@/services/graphhopper';
+import { Layers, Maximize2, Minimize2, LocateFixed, ShieldAlert, Navigation, Route, Zap } from 'lucide-react';
 
 interface RiskMapProps {
   center?: [number, number];
@@ -39,12 +40,94 @@ export function RiskMap({
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [layerPanelOpen, setLayerPanelOpen] = useState(false);
+
+  // GraphHopper Routing States
+  const [selectedHabId, setSelectedHabId] = useState<string>(highlightHabitationId || 'hab-001');
+  const [selectedSiteId, setSelectedSiteId] = useState<string>('site-001');
+  const [activeRoute, setActiveRoute] = useState<GraphHopperRouteResult | null>(null);
+  const [isRoutingLoading, setIsRoutingLoading] = useState<boolean>(false);
+  const [showRoutePanel, setShowRoutePanel] = useState<boolean>(false);
+
   const layers = useMapStore((s) => s.layers);
   const toggleLayer = useMapStore((s) => s.toggleLayer);
 
   const clearMarkers = useCallback(() => {
     markersRef.current.forEach(m => m.remove());
     markersRef.current = [];
+  }, []);
+
+  // Update Route via GraphHopper API
+  const updateGraphHopperRoute = useCallback(async (habId: string, siteId: string) => {
+    const hab = habitations.find(h => h.id === habId);
+    const site = safeSites.find(s => s.id === siteId);
+
+    if (!hab || !site || !map.current) return;
+    setIsRoutingLoading(true);
+
+    try {
+      const result = await getGraphHopperRoute(
+        { lat: hab.coordinates.lat, lng: hab.coordinates.lng },
+        { lat: site.coordinates.lat, lng: site.coordinates.lng },
+        'car'
+      );
+
+      setActiveRoute(result);
+
+      // Render or Update MapLibre GeoJSON Layer for Route
+      if (map.current.loaded()) {
+        const geojsonData: GeoJSON.Feature<GeoJSON.LineString> = {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: result.coordinates,
+          },
+        };
+
+        if (map.current.getSource('graphhopper-route-src')) {
+          (map.current.getSource('graphhopper-route-src') as maplibregl.GeoJSONSource).setData(geojsonData);
+        } else {
+          map.current.addSource('graphhopper-route-src', {
+            type: 'geojson',
+            data: geojsonData,
+          });
+
+          // Outer glow line
+          map.current.addLayer({
+            id: 'graphhopper-route-glow',
+            type: 'line',
+            source: 'graphhopper-route-src',
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: {
+              'line-color': '#0284c7',
+              'line-width': 8,
+              'line-opacity': 0.4,
+            },
+          });
+
+          // Main line
+          map.current.addLayer({
+            id: 'graphhopper-route-line',
+            type: 'line',
+            source: 'graphhopper-route-src',
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: {
+              'line-color': '#0284c7',
+              'line-width': 4,
+            },
+          });
+        }
+
+        // Fit map bounds to encompass origin and destination route
+        const bounds = new maplibregl.LngLatBounds();
+        result.coordinates.forEach(coord => bounds.extend(coord));
+        map.current.fitBounds(bounds, { padding: 50, maxZoom: 12 });
+      }
+    } catch (err) {
+      console.error('GraphHopper Route fetch error:', err);
+    } finally {
+      setIsRoutingLoading(false);
+    }
   }, []);
 
   const addMarkers = useCallback(() => {
@@ -59,7 +142,7 @@ export function RiskMap({
     if (habLayer?.active) {
       habitations.forEach((hab) => {
         const el = document.createElement('div');
-        const isHighlighted = highlightHabitationId === hab.id;
+        const isHighlighted = (highlightHabitationId || selectedHabId) === hab.id;
         const isRedZone = hab.red_zone.isRedZone;
         const size = isHighlighted ? 22 : (isRedZone ? 16 : 12);
 
@@ -105,7 +188,9 @@ export function RiskMap({
           .addTo(map.current!);
 
         el.addEventListener('click', () => {
+          setSelectedHabId(hab.id);
           onHabitationClick?.(hab.id);
+          updateGraphHopperRoute(hab.id, selectedSiteId);
         });
 
         markersRef.current.push(marker);
@@ -139,15 +224,20 @@ export function RiskMap({
     if (siteLayer?.active) {
       safeSites.filter(s => s.status === 'suitable').forEach((site) => {
         const el = document.createElement('div');
-        el.style.width = '14px';
-        el.style.height = '14px';
+        const isSelected = selectedSiteId === site.id;
+        el.style.width = isSelected ? '18px' : '14px';
+        el.style.height = isSelected ? '18px' : '14px';
         el.style.borderRadius = '4px';
         el.style.backgroundColor = '#10b981';
-        el.style.border = '2px solid #ffffff';
+        el.style.border = `2px solid ${isSelected ? '#000' : '#ffffff'}`;
         el.style.cursor = 'pointer';
-        el.style.boxShadow = '0 2px 6px rgba(16,185,129,0.5)';
+        el.style.boxShadow = isSelected ? '0 0 12px rgba(16,185,129,0.9)' : '0 2px 6px rgba(16,185,129,0.5)';
 
-        el.addEventListener('click', () => onSiteClick?.(site.id));
+        el.addEventListener('click', () => {
+          setSelectedSiteId(site.id);
+          onSiteClick?.(site.id);
+          updateGraphHopperRoute(selectedHabId, site.id);
+        });
 
         const marker = new maplibregl.Marker({ element: el })
           .setLngLat([site.coordinates.lng, site.coordinates.lat])
@@ -156,14 +246,35 @@ export function RiskMap({
         markersRef.current.push(marker);
       });
     }
-  }, [layers, highlightHabitationId, onHabitationClick, onEventClick, onSiteClick, clearMarkers]);
+  }, [layers, highlightHabitationId, selectedHabId, selectedSiteId, onHabitationClick, onEventClick, onSiteClick, clearMarkers, updateGraphHopperRoute]);
 
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
 
     map.current = new maplibregl.Map({
       container: mapContainer.current,
-      style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+      style: {
+        version: 8,
+        sources: {
+          'osm-basemap': {
+            type: 'raster',
+            tiles: [
+              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            ],
+            tileSize: 256,
+            attribution: '© OpenStreetMap contributors',
+          },
+        },
+        layers: [
+          {
+            id: 'osm-basemap-layer',
+            type: 'raster',
+            source: 'osm-basemap',
+            minzoom: 0,
+            maxzoom: 19,
+          },
+        ],
+      },
       center: center,
       zoom: zoom,
       attributionControl: false,
@@ -176,6 +287,8 @@ export function RiskMap({
 
     map.current.on('load', () => {
       addMarkers();
+      // Fetch initial GraphHopper Evacuation Route
+      updateGraphHopperRoute(selectedHabId, selectedSiteId);
     });
 
     return () => {
@@ -203,9 +316,128 @@ export function RiskMap({
     setIsFullscreen(!isFullscreen);
   };
 
+  const selectedHab = habitations.find(h => h.id === selectedHabId);
+  const selectedSiteObj = safeSites.find(s => s.id === selectedSiteId);
+
   return (
     <div className={`relative ${className}`} style={{ height }}>
       <div ref={mapContainer} className="w-full h-full rounded-lg overflow-hidden" />
+
+      {/* GraphHopper API Live Status Badge */}
+      <div className="absolute top-3 left-14 z-10 flex items-center gap-2 bg-neutral-900/90 text-white text-[11px] font-mono px-3 py-1.5 rounded-md shadow-md border border-neutral-750">
+        <Zap size={13} className="text-amber-400 animate-pulse" />
+        <span className="font-bold text-amber-400">GraphHopper API Live</span>
+        <span className="text-neutral-500">|</span>
+        <span className="text-neutral-300">
+          {activeRoute
+            ? `${activeRoute.distance_km} km · ${activeRoute.time_minutes} min drive`
+            : isRoutingLoading ? 'Calculating Road Route...' : 'Ready'}
+        </span>
+        <button
+          onClick={() => setShowRoutePanel(!showRoutePanel)}
+          className="ml-1 text-xs bg-accent hover:bg-accent-dark text-white px-2 py-0.5 rounded font-sans font-bold flex items-center gap-1 cursor-pointer transition-colors"
+        >
+          <Route size={12} />
+          <span>Evacuation Route</span>
+        </button>
+      </div>
+
+      {/* GraphHopper Evacuation Route Inspection Drawer */}
+      {showRoutePanel && (
+        <div className="absolute top-14 left-3 w-80 bg-white/95 backdrop-blur-md border border-neutral-300 rounded-lg shadow-xl p-4 z-20 animate-fade-in text-xs">
+          <div className="flex items-center justify-between border-b border-neutral-200 pb-2 mb-3">
+            <div className="flex items-center gap-1.5 font-bold text-neutral-900">
+              <Navigation size={15} className="text-accent" />
+              <span>GraphHopper Evacuation Route</span>
+            </div>
+            <button
+              onClick={() => setShowRoutePanel(false)}
+              className="text-neutral-400 hover:text-neutral-700 font-bold px-1"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Selector Inputs */}
+          <div className="space-y-2 mb-3">
+            <div>
+              <label className="text-[10px] text-neutral-500 font-bold uppercase block mb-0.5">Origin Habitation:</label>
+              <select
+                value={selectedHabId}
+                onChange={(e) => {
+                  setSelectedHabId(e.target.value);
+                  updateGraphHopperRoute(e.target.value, selectedSiteId);
+                }}
+                className="w-full bg-neutral-100 border border-neutral-300 rounded px-2 py-1 font-semibold text-neutral-800 text-xs focus:ring-1 focus:ring-accent"
+              >
+                {habitations.map(h => (
+                  <option key={h.id} value={h.id}>
+                    {h.name} ({h.red_zone.isRedZone ? 'RED-ZONE' : 'Habitation'})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-[10px] text-neutral-500 font-bold uppercase block mb-0.5">Destination Safe Site:</label>
+              <select
+                value={selectedSiteId}
+                onChange={(e) => {
+                  setSelectedSiteId(e.target.value);
+                  updateGraphHopperRoute(selectedHabId, e.target.value);
+                }}
+                className="w-full bg-neutral-100 border border-neutral-300 rounded px-2 py-1 font-semibold text-neutral-800 text-xs focus:ring-1 focus:ring-accent"
+              >
+                {safeSites.filter(s => s.status === 'suitable').map(s => (
+                  <option key={s.id} value={s.id}>
+                    {s.name} (Cap: {s.carrying_capacity.estimated_sustainable_capacity})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Route Metrics Summary */}
+          {activeRoute && (
+            <div className="bg-neutral-50 border border-neutral-200 rounded p-2.5 space-y-2 mb-3">
+              <div className="grid grid-cols-2 gap-2 text-center">
+                <div className="bg-white p-1.5 rounded border border-neutral-200">
+                  <div className="text-[9px] text-neutral-500 uppercase">Road Distance</div>
+                  <div className="text-sm font-bold text-accent">{activeRoute.distance_km} km</div>
+                </div>
+                <div className="bg-white p-1.5 rounded border border-neutral-200">
+                  <div className="text-[9px] text-neutral-500 uppercase">Est. Travel Time</div>
+                  <div className="text-sm font-bold text-emerald-700">{activeRoute.time_minutes} mins</div>
+                </div>
+              </div>
+
+              {activeRoute.isFallback && (
+                <div className="text-[10px] text-amber-800 bg-amber-50 border border-amber-200 p-1.5 rounded">
+                  ⚠️ Using Geodesic Road Approximation
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step-by-Step Directions */}
+          {activeRoute && activeRoute.instructions.length > 0 && (
+            <div>
+              <div className="text-[10px] font-bold text-neutral-500 uppercase mb-1.5">Turn-by-Turn Directions:</div>
+              <div className="max-h-36 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
+                {activeRoute.instructions.map((inst, idx) => (
+                  <div key={idx} className="flex gap-2 text-[11px] text-neutral-700 py-1 border-b border-neutral-100 last:border-0">
+                    <span className="font-mono text-accent font-bold">{idx + 1}.</span>
+                    <span className="flex-1">{inst.text}</span>
+                    <span className="font-mono text-[10px] text-neutral-400">
+                      {(inst.distance_m / 1000).toFixed(1)} km
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Floating Controls */}
       {showControls && (
@@ -290,8 +522,8 @@ export function RiskMap({
               <span className="font-bold text-emerald-800">Eligible Safe Relocation Site</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-sm bg-purple-500 rotate-45 inline-block shrink-0" />
-              <span className="text-neutral-700">Historical Event Site</span>
+              <span className="w-3.5 h-1 bg-accent rounded inline-block shrink-0" />
+              <span className="font-bold text-accent">GraphHopper Evacuation Route</span>
             </div>
           </div>
         </div>

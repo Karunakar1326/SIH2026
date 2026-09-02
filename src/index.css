@@ -47,6 +47,8 @@
   /* --- Typography --- */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-orbitron: "Orbitron", sans-serif;
+  --font-rajdhani: "Rajdhani", sans-serif;
 
   /* --- Spacing (8px grid) --- */
   --spacing-0_5: 2px;
@@ -112,6 +114,23 @@ body {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
+/* === Hero Map Background — Responsive positioning === */
+/* On mobile: shift map toward bottom-right so it stays out of the text area */
+.hero-map-bg {
+  background-position: center 30%;
+}
+@media (max-width: 768px) {
+  .hero-map-bg {
+    background-position: 70% 80%;
+  }
+}
+@media (max-width: 480px) {
+  .hero-map-bg {
+    background-position: 60% 95%;
+    opacity: 0.18 !important;
+  }
+}
+
 /* === Utility Animations === */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(4px); }
@@ -158,3 +177,252 @@ body {
 .stagger-children > *:nth-child(6) { animation-delay: 250ms; }
 .stagger-children > *:nth-child(7) { animation-delay: 300ms; }
 .stagger-children > *:nth-child(8) { animation-delay: 350ms; }
+
+/* ═══════════════════════════════════════
+   HUD / COMMAND-CENTER DESIGN SYSTEM
+   ═══════════════════════════════════════ */
+
+/* --- HUD Root background: pure black + dot grid --- */
+.hud-root {
+  background-color: #0a0a0a;
+  background-image: radial-gradient(rgba(79, 209, 255, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  color: #e2e8f0;
+  min-height: 100dvh;
+}
+
+/* --- HUD Panel: hairline border, sharp corners --- */
+.hud-panel {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 10, 10, 0.85);
+}
+
+/* --- L-corner bracket elements --- */
+.hud-corner-tl,
+.hud-corner-tr,
+.hud-corner-bl,
+.hud-corner-br {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-style: solid;
+  pointer-events: none;
+  z-index: 2;
+}
+.hud-corner-tl { top: -1px; left: -1px;  border-color: rgba(79,209,255,0.55); border-width: 1.5px 0 0 1.5px; }
+.hud-corner-tr { top: -1px; right: -1px; border-color: rgba(79,209,255,0.55); border-width: 1.5px 1.5px 0 0; }
+.hud-corner-bl { bottom: -1px; left: -1px;  border-color: rgba(79,209,255,0.55); border-width: 0 0 1.5px 1.5px; }
+.hud-corner-br { bottom: -1px; right: -1px; border-color: rgba(79,209,255,0.55); border-width: 0 1.5px 1.5px 0; }
+
+/* Orange accent corners */
+.hud-corner-orange .hud-corner-tl,
+.hud-corner-orange .hud-corner-tr,
+.hud-corner-orange .hud-corner-bl,
+.hud-corner-orange .hud-corner-br { border-color: rgba(255,122,26,0.55); }
+
+/* Green accent corners */
+.hud-corner-green .hud-corner-tl,
+.hud-corner-green .hud-corner-tr,
+.hud-corner-green .hud-corner-bl,
+.hud-corner-green .hud-corner-br { border-color: rgba(34,197,94,0.55); }
+
+/* --- Blinking status dot --- */
+.hud-blink {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: hud-blink 2s ease-in-out infinite;
+}
+
+@keyframes hud-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.15; }
+}
+
+/* Slower blink variant */
+.hud-blink-slow { animation-duration: 3.5s; }
+
+/* --- Scan-line sweep over panels --- */
+.hud-scanline::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(79, 209, 255, 0.025) 50%,
+    transparent 100%
+  );
+  background-size: 100% 60px;
+  animation: hud-scan 6s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes hud-scan {
+  0%   { background-position: 0 -60px; }
+  100% { background-position: 0 110%; }
+}
+
+/* --- HUD mono label --- */
+.hud-lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.32);
+}
+
+/* --- Sidebar scrollbar override (ultra-thin) --- */
+.hud-sidebar * {
+  scrollbar-width: none;
+}
+.hud-sidebar *::-webkit-scrollbar { display: none; }
+
+/* --- Sidebar nav hover --- */
+.hud-nav-btn {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+  border-left: 2px solid transparent;
+  transition: all 0.18s ease;
+}
+.hud-nav-btn:hover {
+  color: #4fd1ff;
+  border-left-color: #4fd1ff;
+  background: rgba(79, 209, 255, 0.04);
+  padding-left: 20px;
+}
+
+/* --- Risk bar fill --- */
+.hud-risk-bar {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+.hud-risk-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  transition: width 0.4s ease;
+}
+
+/* --- Globe outer ring pulse --- */
+@keyframes globe-ring-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50%       { opacity: 0.15; transform: scale(1.03); }
+}
+.globe-ring-pulse { animation: globe-ring-pulse 4s ease-in-out infinite; }
+
+/* ─────────────────────────────────────
+   ADVANCED ANIMATION LAYER
+   ───────────────────────────────────── */
+
+/* Scroll-reveal fade-up for sections */
+@keyframes hud-reveal {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hud-section-reveal {
+  animation: hud-reveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Card hover lift */
+.hud-card-hover {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.hud-card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 20px rgba(79, 209, 255, 0.08), 0 0 40px rgba(79, 209, 255, 0.04);
+  border-color: rgba(79, 209, 255, 0.28) !important;
+}
+
+/* CTA primary button animated glow */
+@keyframes cta-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(79, 209, 255, 0.2), inset 0 0 8px rgba(79, 209, 255, 0.05); }
+  50%       { box-shadow: 0 0 20px rgba(79, 209, 255, 0.45), inset 0 0 14px rgba(79, 209, 255, 0.1); }
+}
+.hud-cta-primary {
+  animation: cta-glow 3s ease-in-out infinite;
+}
+
+/* Orange CTA pulse */
+@keyframes cta-orange-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(255, 122, 26, 0.18); }
+  50%       { box-shadow: 0 0 22px rgba(255, 122, 26, 0.45); }
+}
+.hud-cta-orange {
+  animation: cta-orange-pulse 3s ease-in-out infinite;
+}
+
+/* Hazard card gradient shimmer */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.hud-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(79,209,255,0.06) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 4s linear infinite;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Typewriter-style number count (no JS needed, pure CSS trick) */
+@keyframes count-reveal {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+.hud-count-reveal {
+  animation: count-reveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Section header underline expand */
+@keyframes underline-expand {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+.hud-underline {
+  position: relative;
+}
+.hud-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0;
+  height: 1px;
+  background: linear-gradient(to right, #4fd1ff44, #22c55e44);
+  animation: underline-expand 1s ease forwards;
+  animation-delay: 0.3s;
+  width: 0;
+}
+
+/* Sidebar nav active flash on scroll into view */
+@keyframes nav-flash {
+  0%   { color: #4fd1ff; background: rgba(79,209,255,0.12); }
+  100% { color: rgba(255,255,255,0.38); background: transparent; }
+}
+
+.font-orbitron {
+  font-family: 'Orbitron', sans-serif;
+}
+
+.font-rajdhani {
+  font-family: 'Rajdhani', sans-serif;
+}
+
+
+

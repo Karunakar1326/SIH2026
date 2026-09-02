@@ -1,47 +1,96 @@
-import { Database, Cpu, ShieldAlert, SlidersHorizontal, MapPin, CheckCircle2 } from 'lucide-react';
+import { Satellite, SlidersHorizontal, MapPin } from 'lucide-react';
 
-const pipelineNodes = [
-  { step: '01', title: 'Authoritative Data', subtitle: 'ISRO / IMD / CWC / GSI Feeds', icon: Database, color: 'border-blue-500 text-blue-400 bg-blue-950/40' },
-  { step: '02', title: 'Data Normalization', subtitle: '30m PostGIS Spatial Grid', icon: Cpu, color: 'border-cyan-500 text-cyan-400 bg-cyan-950/40' },
-  { step: '03', title: 'Feature Derivation', subtitle: 'Hazard + Vuln + Infra', icon: SlidersHorizontal, color: 'border-indigo-500 text-indigo-400 bg-indigo-950/40' },
-  { step: '04', title: 'Red-Zone Engine', subtitle: 'Dynamic Elevation & Surge Criteria', icon: ShieldAlert, color: 'border-red-500 text-red-400 bg-red-950/40' },
-  { step: '05', title: 'Relocation Priority', subtitle: 'RPI Score (0-100)', icon: SlidersHorizontal, color: 'border-amber-500 text-amber-400 bg-amber-950/40' },
-  { step: '06', title: 'Candidate Site Funnel', subtitle: '5-Stage Exclusion Funnel', icon: MapPin, color: 'border-emerald-500 text-emerald-400 bg-emerald-950/40' },
-  { step: '07', title: 'Carrying Capacity', subtitle: '8-Dimension Infrastructure Gauge', icon: Cpu, color: 'border-teal-500 text-teal-400 bg-teal-950/40' },
-  { step: '08', title: 'Relocation Plan', subtitle: 'Phased Implementation & Action Plan', icon: CheckCircle2, color: 'border-accent text-accent bg-accent/20' },
+const STEPS = [
+  {
+    num: '01',
+    title: 'ASSESS THREAT',
+    sub: 'Satellite, radar & gauge data identifies which communities face real danger.',
+    icon: Satellite,
+    color: '#4fd1ff',
+  },
+  {
+    num: '02',
+    title: 'PRIORITIZE',
+    sub: 'Multi-hazard RPI score ranks every habitation by exposure and urgency.',
+    icon: SlidersHorizontal,
+    color: '#3b82f6',
+  },
+  {
+    num: '03',
+    title: 'RELOCATE',
+    sub: 'Platform matches at-risk populations to verified safe sites and generates plans.',
+    icon: MapPin,
+    color: '#22c55e',
+  },
 ];
 
 export function PipelineArchitectureDiagram() {
   return (
-    <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-md">
-      <div className="text-center mb-6">
-        <span className="text-[10px] font-mono font-bold text-accent tracking-widest uppercase bg-accent/10 border border-accent/20 px-2.5 py-1 rounded">
-          SYSTEM ARCHITECTURE
-        </span>
-        <h3 className="text-xl font-extrabold text-white mt-2">FROM DATA TO DECISION</h3>
-        <p className="text-xs text-neutral-400 max-w-xl mx-auto mt-1">
-          How raw satellite observations, weather radar, and river gauge telemetry pass through the PostGIS spatial engine to generate explainable relocation action plans.
+    <div style={{ position: 'relative' }}>
+      {/* Section label */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: 'rgba(255,255,255,0.28)', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>
+          // HOW_IT_WORKS // PIPELINE_OVERVIEW
+        </div>
+        <h2 style={{ fontFamily: 'Inter, sans-serif', fontSize: 22, fontWeight: 900, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}>
+          From Data to Decision
+        </h2>
+        <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 6, letterSpacing: '0.06em' }}>
+          THREE STEPS · ONE CLEAR OUTCOME
         </p>
       </div>
 
-      {/* Grid of Technical Nodes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {pipelineNodes.map((node, i) => {
-          const Icon = node.icon;
+      {/* Steps grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+        {STEPS.map((step, i) => {
+          const Icon = step.icon;
           return (
-            <div key={i} className={`border rounded-lg p-4 transition-all ${node.color} relative group`}>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded bg-neutral-950 text-neutral-300">
-                  STEP {node.step}
+            <div
+              key={i}
+              className="hud-panel hud-scanline hud-card-hover"
+              style={{ padding: '20px', position: 'relative', minHeight: '180px' }}
+            >
+              {/* Corner brackets */}
+              <span className="hud-corner-tl" style={{ borderColor: step.color + '88' }} />
+              <span className="hud-corner-tr" style={{ borderColor: step.color + '44' }} />
+              <span className="hud-corner-bl" style={{ borderColor: step.color + '44' }} />
+              <span className="hud-corner-br" style={{ borderColor: step.color + '88' }} />
+
+              {/* Step number + icon row */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
+                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 28, fontWeight: 900, color: step.color, lineHeight: 1, opacity: 0.9 }}>
+                  {step.num}
                 </span>
-                <Icon size={18} />
+                <div style={{
+                  width: 34, height: 34,
+                  border: `1px solid ${step.color}44`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: step.color,
+                  background: `${step.color}0d`,
+                }}>
+                  <Icon size={17} />
+                </div>
               </div>
-              <div className="font-extrabold text-white text-xs mb-0.5">{node.title}</div>
-              <div className="text-[10.5px] text-neutral-400 leading-tight">{node.subtitle}</div>
+
+              {/* Title */}
+              <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 8 }}>
+                {step.title}
+              </div>
+
+              {/* Sub */}
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6, margin: 0 }}>
+                {step.sub}
+              </p>
+
+              {/* Bottom accent line */}
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 1, background: `linear-gradient(to right, transparent, ${step.color}44, transparent)` }} />
             </div>
           );
         })}
       </div>
+
+      {/* Connector / divider between steps — desktop only */}
+      <div style={{ position: 'absolute', top: '50%', left: '33.3%', right: '33.3%', height: 1, background: 'linear-gradient(to right, #4fd1ff22, #3b82f688, #22c55e22)', pointerEvents: 'none', zIndex: 0, display: 'none' }} />
     </div>
   );
 }
