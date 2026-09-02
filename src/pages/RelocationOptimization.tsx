@@ -16,27 +16,27 @@ export function RelocationOptimization() {
   const capacityDeficit = Math.max(0, totalNeed - totalCapacity);
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full bg-[#141414] text-[#F5F5F5] overflow-hidden">
       <PageHeader
         title="Relocation Optimization Simulator"
         subtitle="Population-to-site matching engine, scenario comparison, remaining site capacity tracking, and infrastructure stress modeling"
         actions={
-          <div className="flex bg-neutral-200 p-1 rounded text-xs font-semibold">
+          <div className="flex bg-[#1C1C1C] border border-white/10 p-1 rounded-2xl text-xs font-semibold">
             <button
               onClick={() => setSelectedScenario('optimal')}
-              className={`px-3 py-1 rounded transition-colors ${selectedScenario === 'optimal' ? 'bg-white text-neutral-900 shadow-2xs font-bold' : 'text-neutral-600'}`}
+              className={`px-3.5 py-1.5 rounded-xl transition-all ${selectedScenario === 'optimal' ? 'bg-[#232323] text-white shadow-xs font-bold border border-white/10' : 'text-[#9A9A9A] hover:text-white'}`}
             >
               Balanced Optimal
             </button>
             <button
               onClick={() => setSelectedScenario('distance')}
-              className={`px-3 py-1 rounded transition-colors ${selectedScenario === 'distance' ? 'bg-white text-neutral-900 shadow-2xs font-bold' : 'text-neutral-600'}`}
+              className={`px-3.5 py-1.5 rounded-xl transition-all ${selectedScenario === 'distance' ? 'bg-[#232323] text-white shadow-xs font-bold border border-white/10' : 'text-[#9A9A9A] hover:text-white'}`}
             >
               Min Distance
             </button>
             <button
               onClick={() => setSelectedScenario('capacity')}
-              className={`px-3 py-1 rounded transition-colors ${selectedScenario === 'capacity' ? 'bg-white text-neutral-900 shadow-2xs font-bold' : 'text-neutral-600'}`}
+              className={`px-3.5 py-1.5 rounded-xl transition-all ${selectedScenario === 'capacity' ? 'bg-[#232323] text-white shadow-xs font-bold border border-white/10' : 'text-[#9A9A9A] hover:text-white'}`}
             >
               Max Capacity
             </button>
@@ -46,10 +46,10 @@ export function RelocationOptimization() {
 
       <div className="flex-1 overflow-y-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-6 py-4">
-          <KPIBlock label="Total Relocation Need" value={formatCompactNumber(totalNeed)} riskLevel="critical" icon={<Users size={14} />} />
-          <KPIBlock label="Available Site Capacity" value={formatCompactNumber(totalCapacity)} icon={<MapPin size={14} />} />
-          <KPIBlock label="Net Capacity Deficit" value={formatCompactNumber(capacityDeficit)} trend="up" icon={<Activity size={14} />} />
-          <KPIBlock label="Optimization Engine" value="Active (Greedy)" icon={<SlidersHorizontal size={14} />} />
+          <KPIBlock isHero={true} label="Total Relocation Need" value={formatCompactNumber(totalNeed)} riskLevel="critical" icon={<Users size={15} className="text-white" />} />
+          <KPIBlock label="Available Site Capacity" value={formatCompactNumber(totalCapacity)} icon={<MapPin size={15} className="text-[#2ECC71]" />} />
+          <KPIBlock label="Net Capacity Deficit" value={formatCompactNumber(capacityDeficit)} trend="up" icon={<Activity size={15} className="text-[#FFB020]" />} />
+          <KPIBlock label="Optimization Engine" value="Active (Greedy)" icon={<SlidersHorizontal size={15} className="text-[#FF5A1F]" />} />
         </div>
 
         <div className="px-6 pb-6 space-y-6">

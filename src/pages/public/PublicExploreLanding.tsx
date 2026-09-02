@@ -122,7 +122,7 @@ const TIMELINE_EVENTS = [
   },
 ];
 
-const fadeUp = {
+const fadeUp: any = {
   hidden: { opacity: 0, y: 50 },
   visible: (i = 0) => ({
     opacity: 1,
@@ -139,47 +139,29 @@ function AnimatedWords({
   text,
   className = '',
   delay = 0,
-  as: Tag = 'h2',
 }: {
   text: string;
   className?: string;
   delay?: number;
-  as?: keyof JSX.IntrinsicElements;
+  as?: string;
 }) {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-40px' });
   const words = text.split(' ');
 
-  const container = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.09, delayChildren: delay } },
-  };
-
-  const word = {
-    hidden: { opacity: 0, y: 30, filter: 'blur(8px)', skewY: 2 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      filter: 'blur(0px)',
-      skewY: 0,
-      transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
-    },
-  };
-
   return (
     <motion.div
-      ref={ref as React.RefObject<HTMLDivElement>}
-      initial="hidden"
-      animate={inView ? 'visible' : 'hidden'}
-      variants={container}
-      className={`inline ${className}`}
-      style={{ display: 'block' }}
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={`inline-block ${className}`}
     >
-      {React.createElement(Tag, { className }, words.map((w, i) => (
-        <span key={i} className="inline-block overflow-hidden align-bottom mr-[0.25em] last:mr-0">
-          <motion.span className="inline-block" variants={word}>{w}</motion.span>
+      {words.map((w, i) => (
+        <span key={i} className="inline-block mr-[0.25em] last:mr-0">
+          {w}
         </span>
-      )))}
+      ))}
     </motion.div>
   );
 }
@@ -205,12 +187,43 @@ function AnimatedLabel({ text, className = '', delay = 0 }: { text: string; clas
 
 
 /* ─────────────────────────────────────────────────────────────
+   CURVY PATH HELPER
+   Creates a smooth C1-continuous cubic bezier curve connecting timeline points
+───────────────────────────────────────────────────────────── */
+function buildCurvyPath(pts: { x: number; y: number }[]): string {
+  if (pts.length === 0) return '';
+  if (pts.length === 1) return `M ${pts[0].x},${pts[0].y}`;
+
+  let d = `M ${pts[0].x},${pts[0].y}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i];
+    const p1 = pts[i + 1];
+    const dy = p1.y - p0.y;
+    const c1x = p0.x;
+    const c1y = p0.y + dy * 0.48;
+    const c2x = p1.x;
+    const c2y = p1.y - dy * 0.48;
+    d += ` C ${c1x},${c1y} ${c2x},${c2y} ${p1.x},${p1.y}`;
+  }
+  return d;
+}
+
+/* ─────────────────────────────────────────────────────────────
    TIMELINE ITEM COMPONENT
 ───────────────────────────────────────────────────────────── */
-function TimelineItem({ ev, i }: { ev: typeof TIMELINE_EVENTS[0]; i: number }) {
+function TimelineItem({
+  ev,
+  i,
+  activeIdx,
+}: {
+  ev: typeof TIMELINE_EVENTS[0];
+  i: number;
+  activeIdx: number;
+}) {
   const isLeft = i % 2 === 0;
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
+  const isActive = activeIdx === i;
 
   return (
     <div ref={ref} className={`relative flex flex-col md:flex-row md:items-center gap-0 ${isLeft ? '' : 'md:flex-row-reverse'}`}>
@@ -222,15 +235,31 @@ function TimelineItem({ ev, i }: { ev: typeof TIMELINE_EVENTS[0]; i: number }) {
 
       {/* Card */}
       <motion.div
+        id={`timeline-card-${i}`}
         initial={{ opacity: 0, x: isLeft ? -50 : 50 }}
         animate={inView ? { opacity: 1, x: 0 } : {}}
         transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-        className="md:w-[calc(50%-2rem)] group"
+        className="md:w-[calc(50%-2rem)] group relative z-10"
       >
-        <div className={`bg-white/4 border border-white/8 rounded-2xl p-6 hover:bg-white/7 hover:border-white/14 transition-all duration-500 ${isLeft ? "md:mr-8" : "md:ml-8"}`}>
+        <div
+          className={`border rounded-2xl p-6 transition-all duration-500 ${isLeft ? "md:mr-8" : "md:ml-8"}`}
+          style={{
+            borderColor: isActive ? `${ev.color}80` : 'rgba(255, 255, 255, 0.08)',
+            backgroundColor: isActive ? 'rgba(255, 255, 255, 0.07)' : 'rgba(255, 255, 255, 0.03)',
+            boxShadow: isActive ? `0 0 32px ${ev.color}25` : 'none',
+            transform: isActive ? 'scale(1.02)' : 'scale(1)',
+          }}
+        >
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-[10px] font-bold tracking-[0.25em] uppercase px-2.5 py-1 rounded-full"
-              style={{ color: ev.color, background: `${ev.color}18`, border: `1px solid ${ev.color}30` }}>
+            <span
+              className="text-[10px] font-bold tracking-[0.25em] uppercase px-2.5 py-1 rounded-full transition-all duration-300"
+              style={{
+                color: ev.color,
+                background: `${ev.color}18`,
+                border: `1px solid ${ev.color}40`,
+                boxShadow: isActive ? `0 0 12px ${ev.color}40` : 'none',
+              }}
+            >
               {ev.type}
             </span>
           </div>
@@ -250,16 +279,23 @@ function TimelineItem({ ev, i }: { ev: typeof TIMELINE_EVENTS[0]; i: number }) {
         </div>
       </motion.div>
 
-      {/* Center year node — desktop — tagged with id for spine measurement */}
+      {/* Center year node — desktop */}
       <motion.div
         id={`timeline-node-${i}`}
         initial={{ opacity: 0, scale: 0 }}
         animate={inView ? { opacity: 1, scale: 1 } : {}}
         transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1], delay: 0.25 }}
-        className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center justify-center z-10"
+        className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center justify-center z-20"
       >
-        <div className="w-14 h-14 rounded-full flex items-center justify-center font-black text-sm text-white border-2"
-          style={{ background: `${ev.color}22`, borderColor: `${ev.color}60`, boxShadow: `0 0 24px ${ev.color}30` }}>
+        <div
+          className="w-14 h-14 rounded-full flex items-center justify-center font-black text-sm text-white border-2 transition-all duration-500 cursor-default"
+          style={{
+            background: isActive ? `${ev.color}44` : `${ev.color}22`,
+            borderColor: isActive ? ev.color : `${ev.color}60`,
+            boxShadow: isActive ? `0 0 35px ${ev.color}a0, 0 0 16px ${ev.color}` : `0 0 24px ${ev.color}30`,
+            transform: isActive ? 'scale(1.2)' : 'scale(1)',
+          }}
+        >
           {ev.year}
         </div>
       </motion.div>
@@ -271,115 +307,250 @@ function TimelineItem({ ev, i }: { ev: typeof TIMELINE_EVENTS[0]; i: number }) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   TIMELINE SPINE
-   Scroll-driven arrow trajectory that travels node-to-node
-   down the center axis as the user scrolls each year into view.
+   CURVY TIMELINE SPINE
+   Scroll-driven SVG arrow line that curves gracefully between cards
+   and center year nodes down the timeline axis as the user scrolls.
 ───────────────────────────────────────────────────────────── */
-function TimelineSpine({ containerRef }: { containerRef: React.RefObject<HTMLDivElement> }) {
-  const [nodeYs, setNodeYs] = React.useState<number[]>([]);
-  const [containerH, setContainerH] = React.useState(0);
+function CurvyTimelineSpine({
+  containerRef,
+  onActiveIdxChange,
+}: {
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  onActiveIdxChange: (idx: number) => void;
+}) {
+  const pathRef = useRef<SVGPathElement>(null);
+  const [pathD, setPathD] = React.useState('');
+  const [containerSize, setContainerSize] = React.useState({ w: 0, h: 0 });
+  const [totalLength, setTotalLength] = React.useState(0);
+  const [arrowPos, setArrowPos] = React.useState({ x: 0, y: 0, angle: 90 });
+  const [activeIdx, setActiveIdx] = React.useState(0);
+
+  const measure = React.useCallback(() => {
+    if (!containerRef.current) return;
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const cWidth = containerRect.width;
+    const cHeight = containerRect.height;
+    if (cWidth === 0 || cHeight === 0) return;
+    setContainerSize({ w: cWidth, h: cHeight });
+
+    const isDesktop = window.innerWidth >= 768;
+    const pts: { x: number; y: number }[] = [];
+
+    TIMELINE_EVENTS.forEach((_, i) => {
+      const cardEl = document.getElementById(`timeline-card-${i}`);
+      const nodeEl = document.getElementById(`timeline-node-${i}`);
+
+      if (isDesktop && cardEl && nodeEl) {
+        const cardRect = cardEl.getBoundingClientRect();
+        const nodeRect = nodeEl.getBoundingClientRect();
+        const isLeft = i % 2 === 0;
+
+        // Anchor on card side facing center node
+        const cardX = isLeft
+          ? cardRect.right - containerRect.left - 30
+          : cardRect.left - containerRect.left + 30;
+        const cardY = cardRect.top + cardRect.height / 2 - containerRect.top;
+
+        // Center year node anchor
+        const nodeX = nodeRect.left + nodeRect.width / 2 - containerRect.left;
+        const nodeY = nodeRect.top + nodeRect.height / 2 - containerRect.top;
+
+        pts.push({ x: cardX, y: cardY });
+        pts.push({ x: nodeX, y: nodeY });
+      } else if (cardEl) {
+        const cardRect = cardEl.getBoundingClientRect();
+        const x = cardRect.left + 24 - containerRect.left;
+        const y = cardRect.top + cardRect.height / 2 - containerRect.top;
+        pts.push({ x, y });
+      }
+    });
+
+    if (pts.length > 0) {
+      setPathD(buildCurvyPath(pts));
+    }
+  }, [containerRef]);
 
   React.useEffect(() => {
-    const measure = () => {
-      if (!containerRef.current) return;
-      const base = containerRef.current.getBoundingClientRect().top + window.scrollY;
-      const ys: number[] = [];
-      TIMELINE_EVENTS.forEach((_, i) => {
-        const el = document.getElementById(`timeline-node-${i}`);
-        if (el) {
-          const r = el.getBoundingClientRect();
-          ys.push(r.top + window.scrollY - base + r.height / 2);
-        }
-      });
-      if (ys.length) setNodeYs(ys);
-      setContainerH(containerRef.current.scrollHeight);
-    };
-    const t = setTimeout(measure, 350);
+    measure();
+    const t1 = setTimeout(measure, 200);
+    const t2 = setTimeout(measure, 600);
+
     window.addEventListener('resize', measure);
-    return () => { clearTimeout(t); window.removeEventListener('resize', measure); };
-  }, [containerRef]);
+    let ro: ResizeObserver | null = null;
+    if (containerRef.current && typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => measure());
+      ro.observe(containerRef.current);
+    }
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener('resize', measure);
+      if (ro) ro.disconnect();
+    };
+  }, [containerRef, measure]);
+
+  React.useEffect(() => {
+    if (pathRef.current && pathD) {
+      try {
+        const len = pathRef.current.getTotalLength();
+        if (len > 0) setTotalLength(len);
+      } catch (e) {
+        // ignore fallback
+      }
+    }
+  }, [pathD]);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ['start 75%', 'end 25%'],
+    offset: ['start 65%', 'end 35%'],
   });
 
-  const n = nodeYs.length;
-  const inputRange  = n > 1 ? nodeYs.map((_, i) => i / (n - 1)) : [0, 1];
-  const outputRange = n > 1 ? nodeYs : [0, containerH];
+  const pathLengthProgress = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
-  // Y position of the travelling arrow dot
-  const arrowY = useTransform(scrollYProgress, inputRange, outputRange);
-  // Trail height grows from first node to arrow position
-  const trailScaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
-
-  // Active event color (changes per node as arrow passes)
-  const [activeIdx, setActiveIdx] = React.useState(0);
   React.useEffect(() => {
-    const unsub = scrollYProgress.on('change', (v) => {
-      setActiveIdx(Math.max(0, Math.min(Math.round(v * (n - 1)), n - 1)));
-    });
-    return unsub;
-  }, [scrollYProgress, n]);
+    const unsub = scrollYProgress.on('change', (progress) => {
+      if (!pathRef.current || totalLength === 0) return;
 
-  if (!nodeYs.length) return null;
+      const p = Math.max(0, Math.min(1, progress));
+      const currentLen = p * totalLength;
+
+      try {
+        const pt = pathRef.current.getPointAtLength(currentLen);
+        const delta = 4;
+        const ptAhead = pathRef.current.getPointAtLength(Math.min(totalLength, currentLen + delta));
+        const ptBehind = pathRef.current.getPointAtLength(Math.max(0, currentLen - delta));
+
+        const dx = ptAhead.x - ptBehind.x;
+        const dy = ptAhead.y - ptBehind.y;
+        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+        setArrowPos({ x: pt.x, y: pt.y, angle });
+
+        const n = TIMELINE_EVENTS.length;
+        const idx = Math.min(n - 1, Math.max(0, Math.floor(p * n)));
+        setActiveIdx(idx);
+        onActiveIdxChange(idx);
+      } catch (e) {
+        // ignore fallback
+      }
+    });
+
+    return () => unsub();
+  }, [scrollYProgress, totalLength, onActiveIdxChange]);
+
+  if (!pathD || containerSize.w === 0) return null;
+
   const color = TIMELINE_EVENTS[activeIdx]?.color ?? '#f97316';
-  const firstY = nodeYs[0];
-  const lastY  = nodeYs[n - 1];
 
   return (
-    <div className="absolute left-1/2 top-0 bottom-0 w-0 hidden md:block" style={{ height: containerH }}>
-      {/* Ghost spine — full height */}
-      <div
-        className="absolute left-1/2 -translate-x-1/2 w-px"
-        style={{ top: firstY, height: lastY - firstY, background: 'rgba(255,255,255,0.07)' }}
-      />
-
-      {/* Drawn trail — scaleY from top to arrow */}
-      <motion.div
-        className="absolute left-1/2 -translate-x-1/2 w-0.5 origin-top"
-        style={{
-          top: firstY,
-          height: lastY - firstY,
-          scaleY: trailScaleY,
-          background: `linear-gradient(to bottom, ${color}90, ${color}30)`,
-          boxShadow: `0 0 10px ${color}50`,
-          transition: 'background 0.5s ease, box-shadow 0.5s ease',
-        }}
-      />
-
-      {/* ── Moving arrow dot ── */}
-      <motion.div
-        className="absolute"
-        style={{ left: '50%', top: 0, y: arrowY, translateX: '-50%', translateY: '-50%' }}
+    <div className="absolute inset-0 pointer-events-none z-10">
+      <svg
+        className="w-full h-full overflow-visible"
+        viewBox={`0 0 ${containerSize.w} ${containerSize.h}`}
+        preserveAspectRatio="none"
       >
-        {/* Outer breathing ring */}
-        <motion.div
-          className="absolute rounded-full -translate-x-1/2 -translate-y-1/2"
-          style={{
-            width: 40, height: 40, left: '50%', top: '50%',
-            background: `${color}14`,
-            border: `1.5px solid ${color}35`,
-          }}
-          animate={{ scale: [1, 1.5, 1], opacity: [0.7, 0.2, 0.7] }}
-          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+        <defs>
+          <filter id="curvyLineGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="6" result="blur1" />
+            <feGaussianBlur stdDeviation="14" result="blur2" />
+            <feMerge>
+              <feMergeNode in="blur2" />
+              <feMergeNode in="blur1" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <filter id="arrowGlow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        {/* Hidden calculation path */}
+        <path
+          ref={pathRef}
+          d={pathD}
+          fill="none"
+          stroke="transparent"
+          strokeWidth="1"
         />
 
-        {/* Arrow circle */}
-        <div
-          className="relative w-7 h-7 rounded-full flex items-center justify-center z-20"
-          style={{
-            background: color,
-            boxShadow: `0 0 18px ${color}80, 0 0 36px ${color}35`,
-            transition: 'background 0.5s ease, box-shadow 0.5s ease',
-          }}
-        >
-          {/* Downward pointing chevron */}
-          <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
-            <path d="M1 1L5.5 7L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-      </motion.div>
+        {/* Ghost background trail showing full curvy path */}
+        <path
+          d={pathD}
+          fill="none"
+          stroke="rgba(255, 255, 255, 0.08)"
+          strokeWidth="2"
+          strokeDasharray="6 8"
+          strokeLinecap="round"
+        />
+
+        {/* Outer neon glow */}
+        <motion.path
+          d={pathD}
+          fill="none"
+          stroke={color}
+          strokeWidth="10"
+          strokeLinecap="round"
+          opacity={0.35}
+          filter="url(#curvyLineGlow)"
+          style={{ pathLength: pathLengthProgress }}
+        />
+
+        {/* Main active curvy line */}
+        <motion.path
+          d={pathD}
+          fill="none"
+          stroke={color}
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          style={{ pathLength: pathLengthProgress }}
+        />
+
+        {/* Bright inner highlight line */}
+        <motion.path
+          d={pathD}
+          fill="none"
+          stroke="#ffffff"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          opacity={0.75}
+          style={{ pathLength: pathLengthProgress }}
+        />
+
+        {/* Travelling Arrow Head */}
+        <g transform={`translate(${arrowPos.x}, ${arrowPos.y})`}>
+          {/* Breathing outer pulse */}
+          <circle
+            cx="0"
+            cy="0"
+            r="18"
+            fill={`${color}20`}
+            stroke={`${color}40`}
+            strokeWidth="1.5"
+          />
+
+          {/* Glowing arrow badge circle */}
+          <circle
+            cx="0"
+            cy="0"
+            r="13"
+            fill={color}
+            filter="url(#arrowGlow)"
+          />
+
+          {/* Rotating Chevron Arrowhead inside circle */}
+          <g transform={`rotate(${arrowPos.angle})`}>
+            <path
+              d="M -5 -4.5 L 4 0 L -5 4.5 L -2 0 Z"
+              fill="#ffffff"
+            />
+          </g>
+        </g>
+      </svg>
     </div>
   );
 }
@@ -505,6 +676,7 @@ export function PublicExploreLanding() {
   const navigate = useNavigate();
   const heroRef = useRef<HTMLElement>(null);
   const timelineContainerRef = useRef<HTMLDivElement>(null);
+  const [activeTimelineIdx, setActiveTimelineIdx] = React.useState(0);
 
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroBgScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
@@ -753,11 +925,11 @@ export function PublicExploreLanding() {
 
           {/* Timeline */}
           <div ref={timelineContainerRef} className="relative">
-            <TimelineSpine containerRef={timelineContainerRef} />
+            <CurvyTimelineSpine containerRef={timelineContainerRef} onActiveIdxChange={setActiveTimelineIdx} />
 
             <div className="space-y-10 md:space-y-16">
               {TIMELINE_EVENTS.map((ev, i) => (
-                <TimelineItem key={ev.year} ev={ev} i={i} />
+                <TimelineItem key={ev.year} ev={ev} i={i} activeIdx={activeTimelineIdx} />
               ))}
             </div>
 

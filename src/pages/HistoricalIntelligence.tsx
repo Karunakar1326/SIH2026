@@ -74,7 +74,7 @@ export function HistoricalIntelligence() {
   [filtered]);
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full bg-[#141414] text-[#F5F5F5] overflow-hidden">
       <PageHeader
         title="Historical Hazard Intelligence"
         subtitle="Authoritative disaster database, historical analogue matching, and current vs historical intensity comparison"
@@ -82,32 +82,32 @@ export function HistoricalIntelligence() {
 
       <div className="flex-1 overflow-y-auto">
         {/* Filter Toolbar */}
-        <div className="px-6 py-3 bg-white border-b border-neutral-200 flex items-center justify-between flex-wrap gap-4">
+        <div className="px-6 py-3 bg-[#141414] border-b border-white/8 flex items-center justify-between flex-wrap gap-4 text-[#F5F5F5]">
           <div className="flex items-center gap-4">
             <div>
-              <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block mb-1">Hazard Filter</label>
+              <label className="text-[10px] font-bold text-[#9A9A9A] uppercase tracking-wider block mb-1">Hazard Filter</label>
               <select
                 value={hazardFilter}
                 onChange={(e) => { setHazardFilter(e.target.value as HazardType | 'all'); }}
-                className="text-xs border border-neutral-300 rounded px-3 py-1.5 bg-neutral-50 font-semibold focus:outline-none focus:ring-1 focus:ring-accent min-w-[200px]"
+                className="text-xs border border-white/10 rounded-xl px-3 py-1.5 bg-[#232323] text-white font-semibold focus:outline-none focus:ring-1 focus:ring-[#FF5A1F] min-w-[200px]"
               >
-                <option value="all">All Disaster Categories</option>
-                <option value="cyclone">🌀 Cyclone (IMD Track)</option>
-                <option value="flood">🌊 River Flood (CWC Gauge)</option>
-                <option value="landslide">⛰️ Landslide (GSI Inventory)</option>
-                <option value="extreme_rainfall">⛈️ Extreme Rainfall (IMD)</option>
-                <option value="coastal_erosion">🏖️ Coastal Erosion (NCSCM)</option>
+                <option value="all" className="bg-[#1C1C1C]">All Disaster Categories</option>
+                <option value="cyclone" className="bg-[#1C1C1C]">🌀 Cyclone (IMD Track)</option>
+                <option value="flood" className="bg-[#1C1C1C]">🌊 River Flood (CWC Gauge)</option>
+                <option value="landslide" className="bg-[#1C1C1C]">⛰️ Landslide (GSI Inventory)</option>
+                <option value="extreme_rainfall" className="bg-[#1C1C1C]">⛈️ Extreme Rainfall (IMD)</option>
+                <option value="coastal_erosion" className="bg-[#1C1C1C]">🏖️ Coastal Erosion (NCSCM)</option>
               </select>
             </div>
-            <div className="text-xs text-neutral-500">
-              Found <strong className="text-neutral-900">{filtered.length}</strong> authoritative historical disaster records
+            <div className="text-xs text-[#9A9A9A] font-medium">
+              Found <strong className="text-white">{filtered.length}</strong> authoritative historical disaster records
             </div>
           </div>
 
           <button
             onClick={() => setShowComparison(!showComparison)}
-            className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded border transition-colors ${
-              showComparison ? 'bg-accent text-white border-accent' : 'bg-white border-neutral-300 text-neutral-700 hover:bg-neutral-50'
+            className={`flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-xl transition-all cursor-pointer ${
+              showComparison ? 'bg-gradient-to-r from-[#FF7A3D] to-[#FF3D1F] text-white shadow-[0_0_20px_rgba(255,90,31,0.4)]' : 'bg-[#232323] border border-white/10 text-white hover:bg-white/10'
             }`}
           >
             <GitCompare size={14} /> Compare Current Conditions vs Historical Analogue
@@ -116,16 +116,16 @@ export function HistoricalIntelligence() {
 
         {/* Current vs Historical Comparison Panel */}
         {showComparison && closestAnalogue && (
-          <div className="mx-6 mt-4 bg-white border border-neutral-300 rounded-lg p-5 shadow-2xs animate-fade-in">
+          <div className="mx-6 mt-4 bg-[#1C1C1C] border border-white/10 rounded-2xl p-5 shadow-2xl animate-fade-in text-[#F5F5F5]">
             <SectionHeader
               title="Closest Historical Analogue Match"
               subtitle="Direct parameter matching between current IMD condition and historical disaster events"
             />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
               {/* Current Observed Conditions */}
-              <div className="bg-blue-50/60 border border-blue-200 rounded-lg p-4">
-                <div className="text-xs font-bold text-blue-900 mb-3 flex items-center gap-1.5">
-                  <Radio size={14} className="text-blue-600 animate-pulse" />
+              <div className="bg-[#232323] border border-[#FF5A1F]/30 rounded-xl p-4">
+                <div className="text-xs font-bold text-[#FF5A1F] mb-3 flex items-center gap-2">
+                  <Radio size={14} className="text-[#FF5A1F] animate-pulse" />
                   <span>CURRENT OBSERVED (IMD / CWC)</span>
                 </div>
                 <div className="space-y-2">
@@ -136,9 +136,9 @@ export function HistoricalIntelligence() {
               </div>
 
               {/* Closest Historical Event */}
-              <div className="bg-purple-50/60 border border-purple-200 rounded-lg p-4">
-                <div className="text-xs font-bold text-purple-900 mb-3 flex items-center gap-1.5">
-                  <Calendar size={14} className="text-purple-600" />
+              <div className="bg-[#232323] border border-white/10 rounded-xl p-4">
+                <div className="text-xs font-bold text-white mb-3 flex items-center gap-2">
+                  <Calendar size={14} className="text-[#FF5A1F]" />
                   <span>HISTORICAL: {closestAnalogue.name} ({new Date(closestAnalogue.date).getFullYear()})</span>
                 </div>
                 <div className="space-y-2">
@@ -154,20 +154,20 @@ export function HistoricalIntelligence() {
 
               {/* Similarity Calculation & Observed Historical Impact */}
               <div>
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
-                  <div className="text-xs font-bold text-amber-900 mb-1">Historical Analogue Similarity</div>
-                  <div className="text-3xl font-extrabold text-amber-700 font-mono">{currentConditions.similarity_to_historical}% MATCH</div>
-                  <p className="text-[10px] text-amber-800 mt-1 leading-tight">
+                <div className="bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 rounded-xl p-4 mb-3">
+                  <div className="text-xs font-bold text-[#FF5A1F] mb-1">Historical Analogue Similarity</div>
+                  <div className="text-3xl font-black text-white font-mono tabular-nums">{currentConditions.similarity_to_historical}% MATCH</div>
+                  <p className="text-[10px] text-[#9A9A9A] mt-1 leading-tight font-medium">
                     Calculated using standardized Euclidean parameter distance across wind, pressure, and rainfall. Does not guarantee identical future consequences.
                   </p>
                 </div>
 
-                <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-3 text-xs">
-                  <div className="font-bold text-neutral-800 mb-1.5">Consequences Observed in {closestAnalogue.name}:</div>
+                <div className="bg-[#232323] border border-white/5 rounded-xl p-3 text-xs">
+                  <div className="font-bold text-white mb-1.5">Consequences Observed in {closestAnalogue.name}:</div>
                   <div className="space-y-1 text-[11px]">
-                    <div className="flex justify-between"><span className="text-neutral-500">People Affected:</span><span className="font-bold">{formatNumber(closestAnalogue.consequences.people_affected)}</span></div>
-                    <div className="flex justify-between"><span className="text-neutral-500">Houses Damaged:</span><span className="font-bold">{formatNumber(closestAnalogue.consequences.houses_damaged)}</span></div>
-                    <div className="flex justify-between"><span className="text-neutral-500">Infra Damage:</span><span className="font-bold">₹{closestAnalogue.consequences.infrastructure_damage_inr_cr} Cr</span></div>
+                    <div className="flex justify-between"><span className="text-[#9A9A9A]">People Affected:</span><span className="font-bold text-white tabular-nums">{formatNumber(closestAnalogue.consequences.people_affected)}</span></div>
+                    <div className="flex justify-between"><span className="text-[#9A9A9A]">Houses Damaged:</span><span className="font-bold text-white tabular-nums">{formatNumber(closestAnalogue.consequences.houses_damaged)}</span></div>
+                    <div className="flex justify-between"><span className="text-[#9A9A9A]">Infra Damage:</span><span className="font-bold text-[#FF5A1F] tabular-nums">₹{closestAnalogue.consequences.infrastructure_damage_inr_cr} Cr</span></div>
                   </div>
                 </div>
               </div>
@@ -177,29 +177,29 @@ export function HistoricalIntelligence() {
 
         {/* Timeline Chart */}
         <div className="px-6 py-4">
-          <div className="bg-white border border-neutral-300 rounded-lg p-5">
+          <div className="bg-[#1C1C1C] border border-white/10 rounded-2xl p-5 shadow-2xl text-[#F5F5F5]">
             <SectionHeader title="Historical Event Timeline & Severity" subtitle="Click any timeline node or event pill below to inspect measured disaster parameters" />
             <div className="h-44 mt-4">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={timelineData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e8ebee" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#697077' }} />
-                  <YAxis tick={{ fontSize: 11, fill: '#697077' }} hide />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#9A9A9A' }} />
+                  <YAxis tick={{ fontSize: 11, fill: '#9A9A9A' }} hide />
                   <Tooltip
-                    contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #dde1e6' }}
+                    contentStyle={{ fontSize: 12, borderRadius: 12, backgroundColor: '#232323', border: '1px solid rgba(255,255,255,0.1)', color: '#F5F5F5' }}
                     formatter={(value: any, name: any) => [name === 'affected' ? `${((value as number) / 1000).toFixed(0)}K affected` : value, '']}
                     labelFormatter={(label) => `Disaster Year: ${label}`}
                   />
                   <Line
                     type="monotone"
                     dataKey="severity"
-                    stroke="#3b82f6"
+                    stroke="#FF5A1F"
                     strokeWidth={2}
-                    dot={{ r: 6, fill: '#3b82f6', stroke: '#fff', strokeWidth: 2, cursor: 'pointer' }}
+                    dot={{ r: 6, fill: '#FF5A1F', stroke: '#141414', strokeWidth: 2, cursor: 'pointer' }}
                     activeDot={{
                       r: 8,
-                      fill: '#1e40af',
-                      stroke: '#fff',
+                      fill: '#FF7A3D',
+                      stroke: '#ffffff',
                       strokeWidth: 2,
                       onClick: (_: any, payload: any) => {
                         if (payload?.payload?.id) setSelectedEventId(payload.payload.id);
@@ -216,10 +216,10 @@ export function HistoricalIntelligence() {
                 <button
                   key={evt.id}
                   onClick={() => setSelectedEventId(evt.id)}
-                  className={`text-xs px-3 py-1 rounded-full border transition-all flex items-center gap-1.5 font-medium ${
+                  className={`text-xs px-3.5 py-1.5 rounded-full border transition-all flex items-center gap-1.5 font-bold cursor-pointer ${
                     selectedEventId === evt.id
-                      ? 'bg-accent text-white border-accent shadow-2xs font-bold'
-                      : 'bg-neutral-50 text-neutral-700 border-neutral-300 hover:bg-neutral-100'
+                      ? 'bg-gradient-to-r from-[#FF7A3D] to-[#FF3D1F] text-white border-transparent shadow-[0_0_16px_rgba(255,90,31,0.35)]'
+                      : 'bg-[#232323] text-[#9A9A9A] border-white/10 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <span>{hazardIcon(evt.hazard_type)}</span>
@@ -233,19 +233,19 @@ export function HistoricalIntelligence() {
         {/* Selected Event Full Parameter Inspection Card */}
         {selectedEvent && (
           <div className="px-6 pb-6 animate-fade-in">
-            <div className="bg-white border border-neutral-300 rounded-lg overflow-hidden shadow-sm">
+            <div className="bg-[#1C1C1C] border border-white/10 rounded-2xl overflow-hidden shadow-2xl text-[#F5F5F5]">
               {/* Card Header */}
-              <div className="px-5 py-4 bg-neutral-900 text-white flex justify-between items-start">
+              <div className="px-5 py-4 bg-[#232323] text-white flex justify-between items-start border-b border-white/8">
                 <div className="flex items-center gap-3">
                   <span className="text-3xl">{hazardIcon(selectedEvent.hazard_type)}</span>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold">{selectedEvent.name}</h3>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${agencyMeta[selectedEvent.source_agency]?.color || 'bg-neutral-800 text-white'}`}>
+                      <h3 className="text-base font-black text-white">{selectedEvent.name}</h3>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${agencyMeta[selectedEvent.source_agency]?.color || 'bg-[#232323] text-white'}`}>
                         {agencyMeta[selectedEvent.source_agency]?.name || selectedEvent.source_agency}
                       </span>
                     </div>
-                    <p className="text-xs text-neutral-400 mt-0.5">
+                    <p className="text-xs text-[#9A9A9A] mt-0.5">
                       Date: {new Date(selectedEvent.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
                       {' · '}Location: {selectedEvent.location} ({selectedEvent.district})
                     </p>
@@ -254,15 +254,15 @@ export function HistoricalIntelligence() {
                 <StatusBadge level="high" label={hazardLabel(selectedEvent.hazard_type)} size="md" />
               </div>
 
-              <div className="p-5 border-b border-neutral-200 bg-neutral-25">
-                <p className="text-xs text-neutral-700 leading-relaxed font-medium">{selectedEvent.description}</p>
-                <div className="flex items-center gap-2 mt-2 text-[10px] text-neutral-500">
-                  <ExternalLink size={10} />
+              <div className="p-5 border-b border-white/5 bg-[#141414]">
+                <p className="text-xs text-[#F5F5F5] leading-relaxed font-medium">{selectedEvent.description}</p>
+                <div className="flex items-center gap-2 mt-2 text-[10px] text-[#9A9A9A]">
+                  <ExternalLink size={10} className="text-[#FF5A1F]" />
                   <span>Authoritative Provenance: {selectedEvent.source} — Published by {selectedEvent.source_agency}</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-neutral-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/5">
                 {/* Measured Parameters */}
                 <div className="p-5">
                   <SectionHeader title="Measured Hazard Intensity Parameters" subtitle="Authoritative agency observations & telemetry" />
@@ -294,9 +294,9 @@ export function HistoricalIntelligence() {
                       { label: 'Economic Loss', value: `₹${formatNumber(selectedEvent.consequences.economic_loss_inr_cr)} Cr` },
                       { label: 'Crops Affected', value: `${formatNumber(selectedEvent.consequences.crops_affected_hectares)} ha` },
                     ].map((item, i) => (
-                      <div key={i} className="bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-xs">
-                        <div className="text-[10px] text-neutral-500">{item.label}</div>
-                        <div className="text-sm font-bold text-neutral-900">{item.value}</div>
+                      <div key={i} className="bg-[#232323] border border-white/5 rounded-xl px-3 py-2 text-xs">
+                        <div className="text-[10px] text-[#9A9A9A] font-medium">{item.label}</div>
+                        <div className="text-sm font-black text-white tabular-nums">{item.value}</div>
                       </div>
                     ))}
                   </div>

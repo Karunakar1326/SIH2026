@@ -33,13 +33,13 @@ export function CommandCenter() {
   const capacityDeficit = Math.max(0, totalRelocNeed - totalAvailableCapacity);
 
   return (
-    <div className="flex flex-col h-full bg-neutral-100 overflow-hidden">
+    <div className="flex flex-col h-full bg-[#141414] text-[#F5F5F5] overflow-hidden">
       {/* Dynamic Update Alert Banner */}
       {dynamicNotifications.length > 0 && (
-        <div className="bg-amber-950 text-amber-200 border-b border-amber-800 px-4 py-2 text-xs flex items-center justify-between shrink-0 font-mono">
+        <div className="bg-[#FFB020]/10 text-[#FFB020] border-b border-[#FFB020]/30 px-4 py-2 text-xs flex items-center justify-between shrink-0 font-mono">
           <div className="flex items-center gap-2">
-            <Zap size={14} className="text-amber-400 animate-bounce" />
-            <span className="font-bold text-amber-300">DYNAMIC UPDATE NOTIFICATION:</span>
+            <Zap size={14} className="text-[#FFB020] animate-bounce" />
+            <span className="font-bold text-[#FFB020]">DYNAMIC UPDATE NOTIFICATION:</span>
             <span>
               <strong>{dynamicNotifications[0].habitationName}</strong> risk score changed{' '}
               <span className="text-white font-bold">{dynamicNotifications[0].previousScore} → {dynamicNotifications[0].newScore}</span>{' '}
@@ -48,35 +48,35 @@ export function CommandCenter() {
           </div>
           <button
             onClick={() => navigate(`/habitations/${dynamicNotifications[0].habitationId}`)}
-            className="text-[11px] underline text-amber-300 font-sans font-bold hover:text-white"
+            className="text-[11px] underline text-[#FFB020] font-sans font-bold hover:text-white transition-colors"
           >
             Inspect Assessment →
           </button>
         </div>
       )}
 
-      {/* Operational KPI Strip */}
-      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-2.5 px-4 py-3 bg-white border-b border-neutral-200 shrink-0 shadow-2xs">
-        <KPIBlock label="RED-ZONE HABITATIONS" value={redZoneHabitations.length} riskLevel="critical" icon={<ShieldAlert size={14} className="text-red-600" />} />
-        <KPIBlock label="HIGH RISK HABITATIONS" value={highRiskHabitations.length} riskLevel="high" icon={<AlertTriangle size={14} />} />
-        <KPIBlock label="EXPOSED POPULATION" value={formatCompactNumber(totalExposedPop)} riskLevel="critical" icon={<Users size={14} />} />
-        <KPIBlock label="EXPOSED HOUSES" value={formatCompactNumber(totalExposedHouses)} riskLevel="critical" icon={<Home size={14} />} />
-        <KPIBlock label="IMMEDIATE RELOCATION" value={immediateRelocHabs.length} riskLevel="critical" icon={<ArrowRightLeft size={14} />} />
-        <KPIBlock label="SUITABLE SITES" value={suitableSites.length} icon={<MapPin size={14} />} />
-        <KPIBlock label="CAPACITY DEFICIT" value={formatCompactNumber(capacityDeficit)} trend="up" icon={<Activity size={14} />} />
-        <KPIBlock label="ACTIVE ALERTS" value={alerts.filter(a => a.is_active).length} riskLevel="high" icon={<Bell size={14} />} />
+      {/* Operational KPI Strip — Exactly 1 Hero Card with Orange Gradient */}
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3 px-4 py-3 bg-[#141414] border-b border-white/8 shrink-0">
+        <KPIBlock isHero={true} label="RED-ZONE HABITATIONS" value={redZoneHabitations.length} riskLevel="critical" icon={<ShieldAlert size={15} className="text-white" />} />
+        <KPIBlock label="HIGH RISK HABITATIONS" value={highRiskHabitations.length} riskLevel="high" icon={<AlertTriangle size={15} className="text-[#FF5A1F]" />} />
+        <KPIBlock label="EXPOSED POPULATION" value={formatCompactNumber(totalExposedPop)} riskLevel="critical" icon={<Users size={15} className="text-[#FF4D4D]" />} />
+        <KPIBlock label="EXPOSED HOUSES" value={formatCompactNumber(totalExposedHouses)} riskLevel="critical" icon={<Home size={15} className="text-[#FF4D4D]" />} />
+        <KPIBlock label="IMMEDIATE RELOCATION" value={immediateRelocHabs.length} riskLevel="critical" icon={<ArrowRightLeft size={15} className="text-[#FF4D4D]" />} />
+        <KPIBlock label="SUITABLE SITES" value={suitableSites.length} icon={<MapPin size={15} className="text-[#2ECC71]" />} />
+        <KPIBlock label="CAPACITY DEFICIT" value={formatCompactNumber(capacityDeficit)} trend="up" icon={<Activity size={15} className="text-[#FFB020]" />} />
+        <KPIBlock label="ACTIVE ALERTS" value={alerts.filter(a => a.is_active).length} riskLevel="high" icon={<Bell size={15} className="text-[#FFB020]" />} />
       </div>
 
       {/* Main Map + Right Intelligence Panel */}
       <div className="flex-1 flex p-4 gap-4 min-h-0">
-        {/* Dominant GIS Command Map (70% Visual focus) */}
-        <div className="flex-1 bg-white rounded-lg border border-neutral-300 overflow-hidden shadow-sm flex flex-col relative">
-          <div className="px-4 py-2 bg-neutral-900 text-white text-xs font-bold flex items-center justify-between z-10 shrink-0">
+        {/* Dominant GIS Command Map */}
+        <div className="flex-1 bg-[#1C1C1C] rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex flex-col relative">
+          <div className="px-4 py-2.5 bg-[#232323] text-white text-xs font-bold flex items-center justify-between z-10 shrink-0 border-b border-white/8">
             <div className="flex items-center gap-2">
-              <Radio size={14} className="text-emerald-400 animate-pulse" />
-              <span>GEOSPATIAL COMMAND CENTER MAP — RED-ZONE & HAZARD OVERLAY</span>
+              <Radio size={14} className="text-[#2ECC71] animate-pulse" />
+              <span className="tracking-tight font-black">GEOSPATIAL COMMAND CENTER MAP — RED-ZONE & HAZARD OVERLAY</span>
             </div>
-            <span className="text-[10px] text-neutral-400 font-mono">ISRO CartoDEM + IMD Track + CWC Inundation Layer</span>
+            <span className="text-[10px] text-[#9A9A9A] font-mono">ISRO CartoDEM + IMD Track + CWC Inundation Layer</span>
           </div>
 
           <div className="flex-1 relative">
@@ -92,27 +92,27 @@ export function CommandCenter() {
         {/* Right Intelligence & Red-Zone Drawer */}
         <div className="w-88 shrink-0 flex flex-col gap-3">
           {/* Tab Switcher */}
-          <div className="flex bg-neutral-200 rounded p-1 text-xs shrink-0 font-medium">
+          <div className="flex bg-[#1C1C1C] border border-white/8 rounded-2xl p-1 text-xs shrink-0 font-medium">
             <button
               onClick={() => setSelectedTab('redzones')}
-              className={`flex-1 py-1.5 rounded transition-all ${
-                selectedTab === 'redzones' ? 'bg-white text-red-900 font-bold shadow-2xs' : 'text-neutral-600'
+              className={`flex-1 py-1.5 rounded-xl transition-all ${
+                selectedTab === 'redzones' ? 'bg-[#232323] text-[#FF4D4D] font-bold shadow-xs border border-white/10' : 'text-[#9A9A9A] hover:text-white'
               }`}
             >
               Red-Zones ({redZoneHabitations.length})
             </button>
             <button
               onClick={() => setSelectedTab('notifications')}
-              className={`flex-1 py-1.5 rounded transition-all ${
-                selectedTab === 'notifications' ? 'bg-white text-neutral-900 font-bold shadow-2xs' : 'text-neutral-600'
+              className={`flex-1 py-1.5 rounded-xl transition-all ${
+                selectedTab === 'notifications' ? 'bg-[#232323] text-white font-bold shadow-xs border border-white/10' : 'text-[#9A9A9A] hover:text-white'
               }`}
             >
               Updates ({dynamicNotifications.length})
             </button>
             <button
               onClick={() => setSelectedTab('alerts')}
-              className={`flex-1 py-1.5 rounded transition-all ${
-                selectedTab === 'alerts' ? 'bg-white text-neutral-900 font-bold shadow-2xs' : 'text-neutral-600'
+              className={`flex-1 py-1.5 rounded-xl transition-all ${
+                selectedTab === 'alerts' ? 'bg-[#232323] text-[#FFB020] font-bold shadow-xs border border-white/10' : 'text-[#9A9A9A] hover:text-white'
               }`}
             >
               Alerts ({alerts.length})
@@ -120,40 +120,40 @@ export function CommandCenter() {
           </div>
 
           {/* Tab Content Box */}
-          <div className="flex-1 bg-white rounded-lg border border-neutral-300 overflow-y-auto shadow-2xs flex flex-col">
+          <div className="flex-1 bg-[#1C1C1C] rounded-2xl border border-white/10 overflow-y-auto shadow-2xl flex flex-col">
             {selectedTab === 'redzones' && (
-              <div className="divide-y divide-neutral-150">
-                <div className="px-3 py-2 bg-red-50 border-b border-red-200">
-                  <div className="text-xs font-bold text-red-900 flex items-center gap-1.5">
-                    <ShieldAlert size={14} className="text-red-600" />
+              <div className="divide-y divide-white/5">
+                <div className="px-3.5 py-2.5 bg-[#FF4D4D]/10 border-b border-[#FF4D4D]/20">
+                  <div className="text-xs font-bold text-[#FF4D4D] flex items-center gap-1.5">
+                    <ShieldAlert size={14} className="text-[#FF4D4D]" />
                     <span>Red-Zone Emergency Habitations</span>
                   </div>
-                  <div className="text-[10px] text-red-700">Priority 1 evacuation & relocation candidates</div>
+                  <div className="text-[10px] text-[#9A9A9A]">Priority 1 evacuation & relocation candidates</div>
                 </div>
 
                 {redZoneHabitations.map((hab) => (
                   <div
                     key={hab.id}
                     onClick={() => navigate(`/habitations/${hab.id}`)}
-                    className="p-3 hover:bg-red-50/50 cursor-pointer transition-colors"
+                    className="p-3.5 hover:bg-[#232323] cursor-pointer transition-colors"
                   >
                     <div className="flex items-start justify-between">
                       <div>
-                        <div className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+                        <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-[#FF4D4D] animate-pulse" />
                           <span>{hab.name}</span>
                         </div>
-                        <div className="text-[10px] text-neutral-500 mt-0.5">
+                        <div className="text-[10px] text-[#9A9A9A] mt-0.5 font-medium">
                           {hab.district} · Pop: {hab.population.toLocaleString()} · Elev: {hab.elevation_m}m
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm font-extrabold text-red-600">{hab.risk_score}</div>
-                        <span className="text-[9px] font-bold text-red-800 bg-red-100 px-1.5 py-0.2 rounded">RPI {hab.relocation_priority}</span>
+                        <div className="text-sm font-black text-[#FF4D4D] tabular-nums">{hab.risk_score}</div>
+                        <span className="text-[9px] font-bold text-[#FF4D4D] bg-[#FF4D4D]/15 border border-[#FF4D4D]/30 px-1.5 py-0.5 rounded-full">RPI {hab.relocation_priority}</span>
                       </div>
                     </div>
-                    <div className="mt-2 text-[10px] text-red-900 bg-red-50 border border-red-200 rounded p-1.5 leading-tight">
-                      <strong>Trigger:</strong> {hab.red_zone.primaryTrigger}
+                    <div className="mt-2 text-[10px] text-[#F5F5F5] bg-[#232323] border border-white/5 rounded-xl p-2 leading-tight">
+                      <strong className="text-[#FF4D4D]">Trigger:</strong> {hab.red_zone.primaryTrigger}
                     </div>
                   </div>
                 ))}
@@ -161,36 +161,36 @@ export function CommandCenter() {
             )}
 
             {selectedTab === 'notifications' && (
-              <div className="p-3 space-y-2">
-                <div className="text-xs font-bold text-neutral-800 mb-1">Dynamic Assessment Updates</div>
+              <div className="p-3 space-y-2.5">
+                <div className="text-xs font-bold text-white mb-1">Dynamic Assessment Updates</div>
                 {dynamicNotifications.map((notif) => (
-                  <div key={notif.id} className="bg-amber-50 border border-amber-200 rounded p-2.5 text-xs">
-                    <div className="flex items-center justify-between font-bold text-amber-900">
+                  <div key={notif.id} className="bg-[#232323] border border-[#FFB020]/30 rounded-xl p-3 text-xs">
+                    <div className="flex items-center justify-between font-bold text-[#FFB020]">
                       <span>{notif.habitationName}</span>
-                      <span className="text-[10px] text-amber-700">{timeAgo(notif.timestamp)}</span>
+                      <span className="text-[10px] text-[#9A9A9A]">{timeAgo(notif.timestamp)}</span>
                     </div>
-                    <div className="text-[11px] text-amber-800 mt-1">
-                      Score Delta: <strong>{notif.previousScore} → {notif.newScore}</strong>
+                    <div className="text-[11px] text-white mt-1">
+                      Score Delta: <strong className="text-[#FF5A1F]">{notif.previousScore} → {notif.newScore}</strong>
                     </div>
-                    <p className="text-[10px] text-amber-700 mt-1 leading-tight">{notif.changeReason}</p>
+                    <p className="text-[10px] text-[#9A9A9A] mt-1 leading-tight">{notif.changeReason}</p>
                   </div>
                 ))}
               </div>
             )}
 
             {selectedTab === 'alerts' && (
-              <div className="divide-y divide-neutral-150">
+              <div className="divide-y divide-white/5">
                 {alerts.map((alert) => (
-                  <div key={alert.id} className="p-3 hover:bg-neutral-25">
-                    <div className="flex items-start gap-2">
+                  <div key={alert.id} className="p-3.5 hover:bg-[#232323] transition-colors">
+                    <div className="flex items-start gap-2.5">
                       <span className="text-base">{hazardIcon(alert.hazard_type)}</span>
                       <div>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-2">
                           <StatusBadge level={alert.severity} />
-                          <span className="text-[10px] text-neutral-400">{timeAgo(alert.timestamp)}</span>
+                          <span className="text-[10px] text-[#6B6B6B]">{timeAgo(alert.timestamp)}</span>
                         </div>
-                        <div className="text-xs font-bold text-neutral-900 mt-1">{alert.title}</div>
-                        <p className="text-[10px] text-neutral-600 mt-0.5 leading-tight">{alert.description}</p>
+                        <div className="text-xs font-bold text-white mt-1">{alert.title}</div>
+                        <p className="text-[10px] text-[#9A9A9A] mt-0.5 leading-tight">{alert.description}</p>
                       </div>
                     </div>
                   </div>

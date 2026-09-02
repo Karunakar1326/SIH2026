@@ -75,7 +75,7 @@ export function RiskMap({
 
       // Render or Update MapLibre GeoJSON Layer for Route
       if (map.current.loaded()) {
-        const geojsonData: GeoJSON.Feature<GeoJSON.LineString> = {
+        const geojsonData: any = {
           type: 'Feature',
           properties: {},
           geometry: {
@@ -256,20 +256,21 @@ export function RiskMap({
       style: {
         version: 8,
         sources: {
-          'osm-basemap': {
+          'light-basemap': {
             type: 'raster',
             tiles: [
-              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+              'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
             ],
             tileSize: 256,
-            attribution: '© OpenStreetMap contributors',
+            attribution: '© OpenStreetMap contributors © CARTO',
           },
         },
         layers: [
           {
-            id: 'osm-basemap-layer',
+            id: 'light-basemap-layer',
             type: 'raster',
-            source: 'osm-basemap',
+            source: 'light-basemap',
             minzoom: 0,
             maxzoom: 19,
           },
@@ -316,26 +317,23 @@ export function RiskMap({
     setIsFullscreen(!isFullscreen);
   };
 
-  const selectedHab = habitations.find(h => h.id === selectedHabId);
-  const selectedSiteObj = safeSites.find(s => s.id === selectedSiteId);
-
   return (
     <div className={`relative ${className}`} style={{ height }}>
-      <div ref={mapContainer} className="w-full h-full rounded-lg overflow-hidden" />
+      <div ref={mapContainer} className="w-full h-full rounded-2xl overflow-hidden border border-white/10" />
 
       {/* GraphHopper API Live Status Badge */}
-      <div className="absolute top-3 left-14 z-10 flex items-center gap-2 bg-neutral-900/90 text-white text-[11px] font-mono px-3 py-1.5 rounded-md shadow-md border border-neutral-750">
-        <Zap size={13} className="text-amber-400 animate-pulse" />
-        <span className="font-bold text-amber-400">GraphHopper API Live</span>
-        <span className="text-neutral-500">|</span>
-        <span className="text-neutral-300">
+      <div className="absolute top-3 left-14 z-10 flex items-center gap-2.5 bg-[#1C1C1C]/90 backdrop-blur-md text-white text-[11px] font-mono px-3.5 py-1.5 rounded-2xl shadow-xl border border-white/10">
+        <Zap size={13} className="text-[#FFB020] animate-pulse" />
+        <span className="font-bold text-[#FFB020]">GraphHopper API Live</span>
+        <span className="text-[#6B6B6B]">|</span>
+        <span className="text-[#F5F5F5]">
           {activeRoute
             ? `${activeRoute.distance_km} km · ${activeRoute.time_minutes} min drive`
             : isRoutingLoading ? 'Calculating Road Route...' : 'Ready'}
         </span>
         <button
           onClick={() => setShowRoutePanel(!showRoutePanel)}
-          className="ml-1 text-xs bg-accent hover:bg-accent-dark text-white px-2 py-0.5 rounded font-sans font-bold flex items-center gap-1 cursor-pointer transition-colors"
+          className="ml-1 text-xs bg-gradient-to-r from-[#FF7A3D] to-[#FF3D1F] text-white px-3 py-1 rounded-xl font-sans font-bold flex items-center gap-1.5 cursor-pointer shadow-[0_0_16px_rgba(255,90,31,0.35)] hover:shadow-[0_0_24px_rgba(255,90,31,0.55)] transition-all"
         >
           <Route size={12} />
           <span>Evacuation Route</span>
@@ -344,34 +342,34 @@ export function RiskMap({
 
       {/* GraphHopper Evacuation Route Inspection Drawer */}
       {showRoutePanel && (
-        <div className="absolute top-14 left-3 w-80 bg-white/95 backdrop-blur-md border border-neutral-300 rounded-lg shadow-xl p-4 z-20 animate-fade-in text-xs">
-          <div className="flex items-center justify-between border-b border-neutral-200 pb-2 mb-3">
-            <div className="flex items-center gap-1.5 font-bold text-neutral-900">
-              <Navigation size={15} className="text-accent" />
+        <div className="absolute top-14 left-3 w-84 bg-[#1C1C1C]/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl p-4 z-20 animate-fade-in text-xs text-[#F5F5F5]">
+          <div className="flex items-center justify-between border-b border-white/10 pb-2.5 mb-3">
+            <div className="flex items-center gap-2 font-bold text-white">
+              <Navigation size={15} className="text-[#FF5A1F]" />
               <span>GraphHopper Evacuation Route</span>
             </div>
             <button
               onClick={() => setShowRoutePanel(false)}
-              className="text-neutral-400 hover:text-neutral-700 font-bold px-1"
+              className="text-[#9A9A9A] hover:text-white font-bold px-1 transition-colors"
             >
               ✕
             </button>
           </div>
 
           {/* Selector Inputs */}
-          <div className="space-y-2 mb-3">
+          <div className="space-y-2.5 mb-3">
             <div>
-              <label className="text-[10px] text-neutral-500 font-bold uppercase block mb-0.5">Origin Habitation:</label>
+              <label className="text-[10px] text-[#9A9A9A] font-bold uppercase tracking-wider block mb-1">Origin Habitation:</label>
               <select
                 value={selectedHabId}
                 onChange={(e) => {
                   setSelectedHabId(e.target.value);
                   updateGraphHopperRoute(e.target.value, selectedSiteId);
                 }}
-                className="w-full bg-neutral-100 border border-neutral-300 rounded px-2 py-1 font-semibold text-neutral-800 text-xs focus:ring-1 focus:ring-accent"
+                className="w-full bg-[#232323] border border-white/10 rounded-xl px-2.5 py-1.5 font-semibold text-white text-xs focus:ring-1 focus:ring-[#FF5A1F]"
               >
                 {habitations.map(h => (
-                  <option key={h.id} value={h.id}>
+                  <option key={h.id} value={h.id} className="bg-[#1C1C1C] text-white">
                     {h.name} ({h.red_zone.isRedZone ? 'RED-ZONE' : 'Habitation'})
                   </option>
                 ))}
@@ -379,17 +377,17 @@ export function RiskMap({
             </div>
 
             <div>
-              <label className="text-[10px] text-neutral-500 font-bold uppercase block mb-0.5">Destination Safe Site:</label>
+              <label className="text-[10px] text-[#9A9A9A] font-bold uppercase tracking-wider block mb-1">Destination Safe Site:</label>
               <select
                 value={selectedSiteId}
                 onChange={(e) => {
                   setSelectedSiteId(e.target.value);
                   updateGraphHopperRoute(selectedHabId, e.target.value);
                 }}
-                className="w-full bg-neutral-100 border border-neutral-300 rounded px-2 py-1 font-semibold text-neutral-800 text-xs focus:ring-1 focus:ring-accent"
+                className="w-full bg-[#232323] border border-white/10 rounded-xl px-2.5 py-1.5 font-semibold text-white text-xs focus:ring-1 focus:ring-[#FF5A1F]"
               >
                 {safeSites.filter(s => s.status === 'suitable').map(s => (
-                  <option key={s.id} value={s.id}>
+                  <option key={s.id} value={s.id} className="bg-[#1C1C1C] text-white">
                     {s.name} (Cap: {s.carrying_capacity.estimated_sustainable_capacity})
                   </option>
                 ))}
@@ -399,20 +397,20 @@ export function RiskMap({
 
           {/* Route Metrics Summary */}
           {activeRoute && (
-            <div className="bg-neutral-50 border border-neutral-200 rounded p-2.5 space-y-2 mb-3">
+            <div className="bg-[#232323] border border-white/8 rounded-xl p-3 space-y-2 mb-3">
               <div className="grid grid-cols-2 gap-2 text-center">
-                <div className="bg-white p-1.5 rounded border border-neutral-200">
-                  <div className="text-[9px] text-neutral-500 uppercase">Road Distance</div>
-                  <div className="text-sm font-bold text-accent">{activeRoute.distance_km} km</div>
+                <div className="bg-[#1C1C1C] p-2 rounded-xl border border-white/5">
+                  <div className="text-[9px] text-[#9A9A9A] uppercase tracking-wider font-semibold">Road Distance</div>
+                  <div className="text-sm font-black text-[#FF5A1F] tabular-nums">{activeRoute.distance_km} km</div>
                 </div>
-                <div className="bg-white p-1.5 rounded border border-neutral-200">
-                  <div className="text-[9px] text-neutral-500 uppercase">Est. Travel Time</div>
-                  <div className="text-sm font-bold text-emerald-700">{activeRoute.time_minutes} mins</div>
+                <div className="bg-[#1C1C1C] p-2 rounded-xl border border-white/5">
+                  <div className="text-[9px] text-[#9A9A9A] uppercase tracking-wider font-semibold">Est. Travel Time</div>
+                  <div className="text-sm font-black text-[#2ECC71] tabular-nums">{activeRoute.time_minutes} mins</div>
                 </div>
               </div>
 
               {activeRoute.isFallback && (
-                <div className="text-[10px] text-amber-800 bg-amber-50 border border-amber-200 p-1.5 rounded">
+                <div className="text-[10px] text-[#FFB020] bg-[#FFB020]/10 border border-[#FFB020]/30 p-2 rounded-xl font-medium">
                   ⚠️ Using Geodesic Road Approximation
                 </div>
               )}
@@ -422,13 +420,13 @@ export function RiskMap({
           {/* Step-by-Step Directions */}
           {activeRoute && activeRoute.instructions.length > 0 && (
             <div>
-              <div className="text-[10px] font-bold text-neutral-500 uppercase mb-1.5">Turn-by-Turn Directions:</div>
+              <div className="text-[10px] font-bold text-[#9A9A9A] uppercase tracking-wider mb-1.5">Turn-by-Turn Directions:</div>
               <div className="max-h-36 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
                 {activeRoute.instructions.map((inst, idx) => (
-                  <div key={idx} className="flex gap-2 text-[11px] text-neutral-700 py-1 border-b border-neutral-100 last:border-0">
-                    <span className="font-mono text-accent font-bold">{idx + 1}.</span>
+                  <div key={idx} className="flex gap-2 text-[11px] text-[#F5F5F5] py-1 border-b border-white/5 last:border-0">
+                    <span className="font-mono text-[#FF5A1F] font-bold">{idx + 1}.</span>
                     <span className="flex-1">{inst.text}</span>
-                    <span className="font-mono text-[10px] text-neutral-400">
+                    <span className="font-mono text-[10px] text-[#9A9A9A]">
                       {(inst.distance_m / 1000).toFixed(1)} km
                     </span>
                   </div>
@@ -444,7 +442,7 @@ export function RiskMap({
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
           <button
             onClick={toggleFullscreen}
-            className="w-8 h-8 bg-white/95 backdrop-blur-xs rounded-md shadow-sm border border-neutral-300 flex items-center justify-center hover:bg-neutral-50 transition-colors"
+            className="w-8 h-8 bg-[#1C1C1C]/90 backdrop-blur-md text-white rounded-xl shadow-lg border border-white/10 flex items-center justify-center hover:bg-[#232323] transition-all"
             title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
           >
             {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
@@ -453,7 +451,7 @@ export function RiskMap({
             onClick={() => {
               map.current?.flyTo({ center, zoom, duration: 1000 });
             }}
-            className="w-8 h-8 bg-white/95 backdrop-blur-xs rounded-md shadow-sm border border-neutral-300 flex items-center justify-center hover:bg-neutral-50 transition-colors"
+            className="w-8 h-8 bg-[#1C1C1C]/90 backdrop-blur-md text-white rounded-xl shadow-lg border border-white/10 flex items-center justify-center hover:bg-[#232323] transition-all"
             title="Reset view"
           >
             <LocateFixed size={14} />
@@ -466,8 +464,8 @@ export function RiskMap({
         <div className="absolute top-3 right-14 z-10">
           <button
             onClick={() => setLayerPanelOpen(!layerPanelOpen)}
-            className={`w-8 h-8 rounded-md shadow-sm border flex items-center justify-center transition-colors ${
-              layerPanelOpen ? 'bg-accent text-white border-accent' : 'bg-white/95 backdrop-blur-xs border-neutral-300 hover:bg-neutral-50'
+            className={`w-8 h-8 rounded-xl shadow-lg border flex items-center justify-center transition-all ${
+              layerPanelOpen ? 'bg-gradient-to-r from-[#FF7A3D] to-[#FF3D1F] text-white border-transparent shadow-[0_0_16px_rgba(255,90,31,0.4)]' : 'bg-[#1C1C1C]/90 backdrop-blur-md text-white border-white/10 hover:bg-[#232323]'
             }`}
             title="Toggle GIS layers"
           >
@@ -475,18 +473,18 @@ export function RiskMap({
           </button>
 
           {layerPanelOpen && (
-            <div className="absolute right-0 top-10 w-56 bg-white rounded-lg shadow-xl border border-neutral-300 p-3 animate-fade-in z-20">
-              <div className="text-xs font-bold text-neutral-800 mb-2 border-b border-neutral-200 pb-1.5">
+            <div className="absolute right-0 top-10 w-56 bg-[#1C1C1C] text-white rounded-2xl shadow-2xl border border-white/10 p-3.5 animate-fade-in z-20">
+              <div className="text-xs font-bold text-white mb-2 border-b border-white/10 pb-1.5 tracking-tight">
                 Authoritative GIS Layers
               </div>
               <div className="space-y-1.5">
                 {layers.map((layer) => (
-                  <label key={layer.id} className="flex items-center gap-2 text-xs text-neutral-700 py-0.5 cursor-pointer hover:text-neutral-950">
+                  <label key={layer.id} className="flex items-center gap-2 text-xs text-[#9A9A9A] py-0.5 cursor-pointer hover:text-white transition-colors">
                     <input
                       type="checkbox"
                       checked={layer.active}
                       onChange={() => toggleLayer(layer.id)}
-                      className="rounded border-neutral-300 text-accent focus:ring-accent w-3.5 h-3.5"
+                      className="rounded border-white/20 text-[#FF5A1F] focus:ring-[#FF5A1F] w-3.5 h-3.5 bg-[#232323]"
                     />
                     <span>{layer.label}</span>
                   </label>
@@ -499,31 +497,31 @@ export function RiskMap({
 
       {/* Legend */}
       {showLegend && (
-        <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-xs rounded-lg shadow-sm border border-neutral-300 px-3 py-2 z-10 text-[10px]">
-          <div className="font-bold text-neutral-800 mb-1.5 border-b border-neutral-200 pb-1 flex items-center gap-1">
-            <ShieldAlert size={12} className="text-red-600" />
+        <div className="absolute bottom-3 right-3 bg-[#1C1C1C]/90 backdrop-blur-md text-white rounded-2xl shadow-xl border border-white/10 px-3.5 py-2.5 z-10 text-[10px]">
+          <div className="font-bold text-white mb-1.5 border-b border-white/10 pb-1 flex items-center gap-1.5">
+            <ShieldAlert size={12} className="text-[#FF4D4D]" />
             <span>GIS Map Legend</span>
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-red-600 border border-red-900 inline-block shrink-0" />
-              <span className="font-bold text-red-900">RED-ZONE CLASSIFIED (Critical Risk)</span>
+              <span className="w-3 h-3 rounded-full bg-[#FF4D4D] border border-red-950 inline-block shrink-0 shadow-[0_0_8px_rgba(255,77,77,0.5)]" />
+              <span className="font-bold text-[#FF4D4D]">RED-ZONE CLASSIFIED (Critical Risk)</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-orange-500 inline-block shrink-0" />
-              <span className="text-neutral-700">High Risk Habitation</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FF5A1F] inline-block shrink-0" />
+              <span className="text-[#9A9A9A]">High Risk Habitation</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-yellow-500 inline-block shrink-0" />
-              <span className="text-neutral-700">Moderate Risk</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FFB020] inline-block shrink-0" />
+              <span className="text-[#9A9A9A]">Moderate Risk</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-emerald-500 border border-white inline-block shrink-0" />
-              <span className="font-bold text-emerald-800">Eligible Safe Relocation Site</span>
+              <span className="w-3 h-3 rounded-md bg-[#2ECC71] border border-white/30 inline-block shrink-0" />
+              <span className="font-bold text-[#2ECC71]">Eligible Safe Relocation Site</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-3.5 h-1 bg-accent rounded inline-block shrink-0" />
-              <span className="font-bold text-accent">GraphHopper Evacuation Route</span>
+              <span className="w-3.5 h-1 bg-[#FF5A1F] rounded inline-block shrink-0 shadow-[0_0_6px_rgba(255,90,31,0.6)]" />
+              <span className="font-bold text-[#FF5A1F]">GraphHopper Evacuation Route</span>
             </div>
           </div>
         </div>

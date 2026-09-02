@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { riskBgColor, riskBorderColor, freshnessColor, freshnessLabel, riskFromScore } from '@/utils/helpers';
+import { riskBgColor, freshnessColor, freshnessLabel, riskFromScore } from '@/utils/helpers';
 import type { RiskLevel, FreshnessStatus } from '@/data/types';
 import { Info, TrendingUp, TrendingDown, Minus, AlertCircle, Loader2, FolderOpen } from 'lucide-react';
 
@@ -12,24 +12,48 @@ interface KPIBlockProps {
   riskLevel?: RiskLevel;
   icon?: ReactNode;
   className?: string;
+  isHero?: boolean;
 }
 
-export function KPIBlock({ label, value, unit, trend, riskLevel, icon, className = '' }: KPIBlockProps) {
+export function KPIBlock({ label, value, unit, trend, icon, className = '', isHero = false }: KPIBlockProps) {
   const trendIcon = trend === 'up' ? <TrendingUp size={12} /> : trend === 'down' ? <TrendingDown size={12} /> : <Minus size={12} />;
-  const borderClass = riskLevel ? riskBorderColor(riskLevel) : 'border-neutral-200';
+
+  if (isHero) {
+    return (
+      <div className={`bg-gradient-to-br from-[#FF7A3D] to-[#FF3D1F] text-white rounded-2xl p-4 shadow-[0_0_24px_rgba(255,90,31,0.35)] transition-all duration-300 hover:-translate-y-0.5 animate-count-up ${className}`}>
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[11px] font-bold text-white/90 uppercase tracking-widest">{label}</span>
+          {icon && <span className="p-1.5 rounded-xl bg-white/20 text-white backdrop-blur-xs">{icon}</span>}
+        </div>
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-2xl font-black text-white tabular-nums tracking-tight">{value}</span>
+          {unit && <span className="text-xs text-white/80 font-medium">{unit}</span>}
+          {trend && (
+            <span className="ml-auto text-xs flex items-center gap-0.5 text-white/90 font-bold">
+              {trendIcon}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className={`bg-white rounded-lg border-l-[3px] ${borderClass} border border-neutral-150 px-4 py-3 animate-count-up ${className}`}>
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-[11px] font-medium text-neutral-500 uppercase tracking-wider">{label}</span>
-        {icon && <span className="text-neutral-400">{icon}</span>}
+    <div className={`bg-[#1C1C1C] hover:bg-[#232323] border border-white/8 rounded-2xl p-4 transition-all duration-300 hover:-translate-y-0.5 animate-count-up ${className}`}>
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-[11px] font-semibold text-[#9A9A9A] uppercase tracking-wider">{label}</span>
+        {icon && (
+          <span className="p-1.5 rounded-xl bg-[#232323] text-[#9A9A9A] border border-white/5">
+            {icon}
+          </span>
+        )}
       </div>
       <div className="flex items-baseline gap-1.5">
-        <span className="text-2xl font-bold text-neutral-900">{value}</span>
-        {unit && <span className="text-xs text-neutral-500">{unit}</span>}
+        <span className="text-2xl font-black text-[#F5F5F5] tabular-nums tracking-tight">{value}</span>
+        {unit && <span className="text-xs text-[#9A9A9A] font-medium">{unit}</span>}
         {trend && (
-          <span className={`ml-auto text-xs flex items-center gap-0.5 ${
-            trend === 'up' ? 'text-red-500' : trend === 'down' ? 'text-green-500' : 'text-neutral-400'
+          <span className={`ml-auto text-xs flex items-center gap-0.5 font-bold ${
+            trend === 'up' ? 'text-[#FF4D4D]' : trend === 'down' ? 'text-[#2ECC71]' : 'text-[#9A9A9A]'
           }`}>
             {trendIcon}
           </span>
@@ -48,9 +72,9 @@ interface StatusBadgeProps {
 
 export function StatusBadge({ level, label, size = 'sm' }: StatusBadgeProps) {
   const classes = riskBgColor(level);
-  const sizeClasses = size === 'sm' ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-1';
+  const sizeClasses = size === 'sm' ? 'text-[10px] px-2.5 py-0.5' : 'text-xs px-3 py-1';
   return (
-    <span className={`inline-flex items-center font-semibold rounded-full border ${classes} ${sizeClasses}`}>
+    <span className={`inline-flex items-center font-bold rounded-full border ${classes} ${sizeClasses}`}>
       {label || level.charAt(0).toUpperCase() + level.slice(1)}
     </span>
   );
@@ -70,10 +94,10 @@ export function RiskScoreBadge({ score, max = 100, showLabel = true, size = 'md'
 
   return (
     <div className="flex flex-col items-center gap-1">
-      <div className={`${sizeMap[size]} rounded-full flex items-center justify-center font-bold ${riskBgColor(level)} border`}>
+      <div className={`${sizeMap[size]} rounded-full flex items-center justify-center font-bold ${riskBgColor(level)} border shadow-sm`}>
         {score}
       </div>
-      {showLabel && <span className="text-[10px] text-neutral-500">/ {max}</span>}
+      {showLabel && <span className="text-[10px] text-[#9A9A9A]">/ {max}</span>}
     </div>
   );
 }
@@ -87,11 +111,11 @@ interface DataFreshnessProps {
 
 export function DataFreshnessIndicator({ name, status, lastUpdated }: DataFreshnessProps) {
   return (
-    <div className="flex items-center justify-between text-xs py-1.5">
-      <span className="text-neutral-600">{name}</span>
-      <div className="flex items-center gap-2">
-        <span className="text-neutral-400">{lastUpdated}</span>
-        <span className={`font-medium ${freshnessColor(status)}`}>{freshnessLabel(status)}</span>
+    <div className="flex items-center justify-between text-xs py-1.5 border-b border-white/5 last:border-0">
+      <span className="text-[#9A9A9A] font-medium">{name}</span>
+      <div className="flex items-center gap-2 font-mono">
+        <span className="text-[#6B6B6B] text-[11px]">{lastUpdated}</span>
+        <span className={`font-bold ${freshnessColor(status)}`}>{freshnessLabel(status)}</span>
       </div>
     </div>
   );
@@ -107,14 +131,14 @@ interface ConfidenceProps {
 export function ConfidenceIndicator({ label, value, suffix = '%' }: ConfidenceProps) {
   return (
     <div className="flex items-center gap-2 text-xs">
-      <span className="text-neutral-500">{label}</span>
-      <div className="flex-1 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+      <span className="text-[#9A9A9A] font-medium">{label}</span>
+      <div className="flex-1 h-1.5 bg-[#232323] rounded-full overflow-hidden border border-white/5">
         <div
-          className="h-full bg-accent rounded-full transition-all duration-500"
+          className="h-full bg-gradient-to-r from-[#FF7A3D] to-[#FF3D1F] rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(255,90,31,0.4)]"
           style={{ width: `${value}%` }}
         />
       </div>
-      <span className="text-neutral-700 font-medium w-10 text-right">{value}{suffix}</span>
+      <span className="text-[#F5F5F5] font-bold w-10 text-right tabular-nums">{value}{suffix}</span>
     </div>
   );
 }
@@ -130,21 +154,21 @@ interface IntensityMetricProps {
 
 export function IntensityMetric({ label, value, unit, tooltip, highlight }: IntensityMetricProps) {
   return (
-    <div className={`flex items-center justify-between py-2 px-3 rounded-md ${highlight ? 'bg-neutral-50' : ''}`}>
+    <div className={`flex items-center justify-between py-2 px-3 rounded-xl border border-white/5 ${highlight ? 'bg-[#232323]' : 'bg-[#1C1C1C]'}`}>
       <div className="flex items-center gap-1.5">
-        <span className="text-sm text-neutral-600">{label}</span>
+        <span className="text-xs text-[#9A9A9A] font-medium">{label}</span>
         {tooltip && (
           <span className="group relative">
-            <Info size={12} className="text-neutral-400 cursor-help" />
-            <span className="hidden group-hover:block absolute left-0 top-5 z-50 w-64 p-2 text-xs bg-neutral-900 text-neutral-200 rounded-md shadow-lg">
+            <Info size={12} className="text-[#6B6B6B] cursor-help" />
+            <span className="hidden group-hover:block absolute left-0 top-5 z-50 w-64 p-2.5 text-xs bg-[#232323] text-[#F5F5F5] border border-white/10 rounded-xl shadow-xl">
               {tooltip}
             </span>
           </span>
         )}
       </div>
       <div className="flex items-baseline gap-1">
-        <span className="text-sm font-semibold text-neutral-900">{value}</span>
-        {unit && <span className="text-xs text-neutral-500">{unit}</span>}
+        <span className="text-sm font-bold text-[#F5F5F5] tabular-nums">{value}</span>
+        {unit && <span className="text-xs text-[#9A9A9A]">{unit}</span>}
       </div>
     </div>
   );
@@ -164,11 +188,11 @@ export function HazardScoreBar({ label, score, max = 100, color }: HazardScoreBa
 
   return (
     <div className="space-y-1">
-      <div className="flex justify-between items-center">
-        <span className="text-xs text-neutral-600">{label}</span>
-        <span className="text-xs font-semibold text-neutral-800">{score}</span>
+      <div className="flex justify-between items-center text-xs">
+        <span className="text-[#9A9A9A] font-medium">{label}</span>
+        <span className="font-bold text-[#F5F5F5] tabular-nums">{score}</span>
       </div>
-      <div className="h-2 bg-neutral-100 rounded-full overflow-hidden">
+      <div className="h-2 bg-[#232323] rounded-full overflow-hidden border border-white/5">
         <div
           className={`h-full rounded-full transition-all duration-700 ${barColor}`}
           style={{ width: `${(score / max) * 100}%` }}
@@ -190,8 +214,8 @@ export function SectionHeader({ title, subtitle, action, className = '' }: Secti
   return (
     <div className={`flex items-center justify-between ${className}`}>
       <div>
-        <h2 className="text-base font-semibold text-neutral-900">{title}</h2>
-        {subtitle && <p className="text-xs text-neutral-500 mt-0.5">{subtitle}</p>}
+        <h2 className="text-base font-bold text-[#F5F5F5] tracking-tight">{title}</h2>
+        {subtitle && <p className="text-xs text-[#9A9A9A] mt-0.5">{subtitle}</p>}
       </div>
       {action}
     </div>
@@ -208,12 +232,12 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, subtitle, actions }: PageHeaderProps) {
   return (
-    <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-neutral-150">
+    <div className="flex items-center justify-between px-6 py-4 bg-[#1C1C1C] border-b border-white/8 shrink-0">
       <div>
-        <h1 className="text-lg font-bold text-neutral-900">{title}</h1>
-        {subtitle && <p className="text-sm text-neutral-500 mt-0.5">{subtitle}</p>}
+        <h1 className="text-xl font-black text-[#F5F5F5] tracking-tight">{title}</h1>
+        {subtitle && <p className="text-xs text-[#9A9A9A] mt-1">{subtitle}</p>}
       </div>
-      {actions && <div className="flex items-center gap-2">{actions}</div>}
+      {actions && <div className="flex items-center gap-2.5">{actions}</div>}
     </div>
   );
 }

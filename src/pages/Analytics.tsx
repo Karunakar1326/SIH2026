@@ -5,7 +5,7 @@ import { safeSites } from '@/data/safe-sites';
 import { hazardLabel, formatCompactNumber } from '@/utils/helpers';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid, Legend, AreaChart, Area } from 'recharts';
 
-const RISK_COLORS = { critical: '#ef4444', high: '#f97316', moderate: '#eab308', low: '#22c55e' };
+const RISK_COLORS = { critical: '#FF4D4D', high: '#FF5A1F', moderate: '#FFB020', low: '#2ECC71' };
 
 export function Analytics() {
   // Risk Distribution
@@ -58,56 +58,64 @@ export function Analytics() {
     };
   });
 
+  const tooltipStyle = {
+    fontSize: 12,
+    borderRadius: 12,
+    backgroundColor: '#232323',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    color: '#F5F5F5',
+  };
+
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full bg-[#141414] text-[#F5F5F5] overflow-hidden">
       <PageHeader title="Analytics" subtitle="Comprehensive risk, hazard, and capacity analytics" />
 
       <div className="flex-1 overflow-y-auto px-6 py-4">
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {/* Risk Distribution Pie */}
-          <div className="bg-white border border-neutral-200 rounded-lg p-4">
+          <div className="bg-[#1C1C1C] border border-white/10 rounded-2xl p-4 shadow-xl">
             <SectionHeader title="Risk Distribution" subtitle="Habitations by risk level" />
             <div className="h-48 mt-3">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={riskDist} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={40} paddingAngle={2}>
+                  <Pie data={riskDist} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={40} paddingAngle={3}>
                     {riskDist.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
                   </Pie>
-                  <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #dde1e6' }} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Legend wrapperStyle={{ fontSize: 11, color: '#9A9A9A' }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Hazard Distribution */}
-          <div className="bg-white border border-neutral-200 rounded-lg p-4">
+          <div className="bg-[#1C1C1C] border border-white/10 rounded-2xl p-4 shadow-xl">
             <SectionHeader title="Hazard Distribution" subtitle="Events and affected habitations by type" />
             <div className="h-48 mt-3">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={hazardDist} barGap={2}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e8ebee" />
-                  <XAxis dataKey="name" tick={{ fontSize: 9, fill: '#697077' }} />
-                  <YAxis tick={{ fontSize: 10, fill: '#697077' }} />
-                  <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #dde1e6' }} />
-                  <Bar dataKey="events" name="Historical Events" fill="#8b5cf6" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="habitations" name="Habitations" fill="#3b82f6" radius={[3, 3, 0, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="name" tick={{ fontSize: 9, fill: '#9A9A9A' }} />
+                  <YAxis tick={{ fontSize: 10, fill: '#9A9A9A' }} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Bar dataKey="events" name="Historical Events" fill="#a78bfa" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="habitations" name="Habitations" fill="#FF5A1F" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Population Exposure */}
-          <div className="bg-white border border-neutral-200 rounded-lg p-4">
+          <div className="bg-[#1C1C1C] border border-white/10 rounded-2xl p-4 shadow-xl">
             <SectionHeader title="Population Exposure" subtitle="Population at each risk level" />
             <div className="h-48 mt-3">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={popByRisk} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e8ebee" />
-                  <XAxis type="number" tick={{ fontSize: 10, fill: '#697077' }} tickFormatter={(v) => formatCompactNumber(v)} />
-                  <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#697077' }} width={70} />
-                  <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #dde1e6' }} formatter={(v: any) => formatCompactNumber(v)} />
-                  <Bar dataKey="population" radius={[0, 3, 3, 0]}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis type="number" tick={{ fontSize: 10, fill: '#9A9A9A' }} tickFormatter={(v) => formatCompactNumber(v)} />
+                  <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#9A9A9A' }} width={70} />
+                  <Tooltip contentStyle={tooltipStyle} formatter={(v: any) => formatCompactNumber(v)} />
+                  <Bar dataKey="population" radius={[0, 4, 4, 0]}>
                     {popByRisk.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
                   </Bar>
                 </BarChart>
@@ -116,34 +124,34 @@ export function Analytics() {
           </div>
 
           {/* Historical Event Frequency */}
-          <div className="bg-white border border-neutral-200 rounded-lg p-4">
+          <div className="bg-[#1C1C1C] border border-white/10 rounded-2xl p-4 shadow-xl">
             <SectionHeader title="Event Frequency" subtitle="Historical events by year" />
             <div className="h-48 mt-3">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={timelineData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e8ebee" />
-                  <XAxis dataKey="year" tick={{ fontSize: 10, fill: '#697077' }} />
-                  <YAxis tick={{ fontSize: 10, fill: '#697077' }} />
-                  <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #dde1e6' }} />
-                  <Area type="monotone" dataKey="events" stroke="#3b82f6" fill="#3b82f620" strokeWidth={2} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="year" tick={{ fontSize: 10, fill: '#9A9A9A' }} />
+                  <YAxis tick={{ fontSize: 10, fill: '#9A9A9A' }} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Area type="monotone" dataKey="events" stroke="#FF5A1F" fill="rgba(255,90,31,0.2)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Capacity Overview */}
-          <div className="bg-white border border-neutral-200 rounded-lg p-4">
+          <div className="bg-[#1C1C1C] border border-white/10 rounded-2xl p-4 shadow-xl">
             <SectionHeader title="Capacity vs Need" subtitle="Relocation capacity assessment" />
             <div className="h-48 mt-3">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={capacityData} barGap={8}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e8ebee" />
-                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#697077' }} />
-                  <YAxis tick={{ fontSize: 10, fill: '#697077' }} tickFormatter={(v) => formatCompactNumber(v)} />
-                  <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #dde1e6' }} formatter={(v: any) => formatCompactNumber(v)} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#9A9A9A' }} />
+                  <YAxis tick={{ fontSize: 10, fill: '#9A9A9A' }} tickFormatter={(v) => formatCompactNumber(v)} />
+                  <Tooltip contentStyle={tooltipStyle} formatter={(v: any) => formatCompactNumber(v)} />
                   <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                    <Cell fill="#ef4444" />
-                    <Cell fill="#22c55e" />
+                    <Cell fill="#FF4D4D" />
+                    <Cell fill="#2ECC71" />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -151,16 +159,16 @@ export function Analytics() {
           </div>
 
           {/* District Comparison */}
-          <div className="bg-white border border-neutral-200 rounded-lg p-4">
+          <div className="bg-[#1C1C1C] border border-white/10 rounded-2xl p-4 shadow-xl">
             <SectionHeader title="District Comparison" subtitle="Average risk by district" />
             <div className="h-48 mt-3">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={districtData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e8ebee" />
-                  <XAxis dataKey="district" tick={{ fontSize: 10, fill: '#697077' }} />
-                  <YAxis tick={{ fontSize: 10, fill: '#697077' }} domain={[0, 100]} />
-                  <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #dde1e6' }} />
-                  <Bar dataKey="avgRisk" name="Avg Risk Score" fill="#f97316" radius={[3, 3, 0, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="district" tick={{ fontSize: 10, fill: '#9A9A9A' }} />
+                  <YAxis tick={{ fontSize: 10, fill: '#9A9A9A' }} domain={[0, 100]} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Bar dataKey="avgRisk" name="Avg Risk Score" fill="#FF5A1F" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

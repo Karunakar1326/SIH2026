@@ -10,6 +10,7 @@ import { HabitationDetail } from '@/pages/HabitationDetail';
 import { RelocationIntelligence } from '@/pages/RelocationIntelligence';
 import { SafeSites } from '@/pages/SafeSites';
 import { RelocationOptimization } from '@/pages/RelocationOptimization';
+import { ScenariosWhatIf } from '@/pages/ScenariosWhatIf';
 import { Analytics } from '@/pages/Analytics';
 import { Reports } from '@/pages/Reports';
 import { FieldVerification } from '@/pages/FieldVerification';
@@ -35,22 +36,23 @@ export default function App() {
 
                 {/* ASSESS */}
                 <Route path="risk" element={<RiskIntelligence />} />
-                <Route path="historical" element={<HistoricalIntelligence />} />
                 <Route path="communities" element={<Habitations />} />
+                <Route path="historical" element={<HistoricalIntelligence />} />
                 <Route path="communities/:id" element={<HabitationDetail />} />
 
                 {/* PLAN */}
                 <Route path="relocation" element={<RelocationIntelligence />} />
                 <Route path="safe-sites" element={<SafeSites />} />
                 <Route path="optimization" element={<RelocationOptimization />} />
+                <Route path="scenarios" element={<ScenariosWhatIf />} />
 
                 {/* OPERATE */}
                 <Route path="field-verification" element={<FieldVerification />} />
 
                 {/* REVIEW */}
-                <Route path="analytics" element={<Analytics />} />
                 <Route path="reports" element={<Reports />} />
                 <Route path="data-methodology" element={<DataMethodology />} />
+                <Route path="analytics" element={<Analytics />} />
 
                 {/* SYSTEM */}
                 <Route path="settings" element={<SettingsPage />} />

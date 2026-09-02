@@ -4,7 +4,7 @@ import { agencyStatuses } from '@/data/alerts';
 import {
   Shield, Radio, RefreshCw, LayoutDashboard, AlertTriangle, History,
   Building2, ArrowRightLeft, MapPin, BarChart3, ClipboardCheck,
-  BookOpen, Settings, SlidersHorizontal, LogOut, ChevronRight
+  BookOpen, Settings, SlidersHorizontal, LogOut, ChevronRight, PanelLeftClose, PanelLeftOpen, Sparkles
 } from 'lucide-react';
 
 const workspaceNav = [
@@ -17,9 +17,9 @@ const workspaceNav = [
   {
     group: 'ASSESS',
     items: [
-      { path: '/workspace/risk', label: 'Risk & Red-Zones', icon: AlertTriangle },
-      { path: '/workspace/historical', label: 'Disaster History', icon: History },
-      { path: '/workspace/communities', label: 'Communities', icon: Building2 },
+      { path: '/workspace/risk', label: 'Risk Intelligence', icon: AlertTriangle },
+      { path: '/workspace/communities', label: 'Habitation Intelligence', icon: Building2 },
+      { path: '/workspace/historical', label: 'Historical Disaster Intelligence', icon: History },
     ]
   },
   {
@@ -27,13 +27,14 @@ const workspaceNav = [
     items: [
       { path: '/workspace/relocation', label: 'Relocation Priority', icon: ArrowRightLeft },
       { path: '/workspace/safe-sites', label: 'Safe Sites & Capacity', icon: MapPin },
-      { path: '/workspace/optimization', label: 'Optimization Engine', icon: SlidersHorizontal },
+      { path: '/workspace/optimization', label: 'Relocation Optimization', icon: SlidersHorizontal },
+      { path: '/workspace/scenarios', label: 'Scenarios & What-If', icon: Sparkles },
     ]
   },
   {
     group: 'OPERATE',
     items: [
-      { path: '/workspace/field-verification', label: 'Field Operations', icon: ClipboardCheck }
+      { path: '/workspace/field-verification', label: 'Field Verification', icon: ClipboardCheck }
     ]
   },
   {
@@ -54,64 +55,98 @@ const workspaceNav = [
 export function WorkspaceSidebar() {
   const selectedDistrict = useAppStore((s) => s.selectedDistrict);
   const setSelectedDistrict = useAppStore((s) => s.setSelectedDistrict);
+  const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
+  const toggleSidebar = useAppStore((s) => s.toggleSidebar);
   const location = useLocation();
   const navigate = useNavigate();
   const districts = ['All Districts', 'Ganjam', 'Puri', 'Jagatsinghpur', 'Kendrapara', 'Balasore'];
 
   return (
-    <aside className="w-64 bg-neutral-950 text-white border-r border-neutral-800/80 flex flex-col shrink-0 h-screen z-30 shadow-2xl overflow-hidden font-sans">
+    <aside
+      className={`bg-[#1C1C1C] text-[#F5F5F5] border-r border-white/8 flex flex-col shrink-0 h-screen z-30 shadow-2xl overflow-hidden font-sans transition-all duration-300 ease-in-out ${
+        sidebarCollapsed ? 'w-16' : 'w-64'
+      }`}
+    >
       {/* Brand Header */}
-      <div className="p-4 border-b border-neutral-850 flex flex-col gap-2.5">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-md bg-blue-600 flex items-center justify-center font-bold text-white shadow-sm shrink-0">
-            <Shield size={18} />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-base font-extrabold tracking-wider text-white leading-tight">NEXUS</span>
-              <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-blue-950/80 text-blue-400 border border-blue-800/60 font-semibold shrink-0">
-                AUTHORITY
-              </span>
+      <div className="p-3.5 border-b border-white/8 flex flex-col gap-2.5">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#FF7A3D] to-[#FF3D1F] flex items-center justify-center font-bold text-white shadow-[0_0_16px_rgba(255,90,31,0.4)] shrink-0">
+              <Shield size={18} />
             </div>
-            <span className="text-[10px] text-neutral-400 truncate leading-tight mt-0.5">
-              State Disaster Management Authority
-            </span>
+            {!sidebarCollapsed && (
+              <div className="flex flex-col min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-base font-black tracking-tight text-white leading-tight">NEXUS</span>
+                  <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded-full bg-[#232323] text-[#9A9A9A] border border-white/10 font-bold shrink-0">
+                    AUTHORITY
+                  </span>
+                </div>
+                <span className="text-[10px] text-[#9A9A9A] truncate leading-tight mt-0.5 font-medium">
+                  State Disaster Management Authority
+                </span>
+              </div>
+            )}
           </div>
+
+          {/* Minimize / Expand Toggle Button */}
+          <button
+            onClick={toggleSidebar}
+            className="p-1.5 rounded-xl bg-[#232323] text-[#9A9A9A] hover:text-white hover:bg-white/10 border border-white/10 transition-colors cursor-pointer shrink-0"
+            title={sidebarCollapsed ? "Expand Sidebar" : "Minimize Sidebar"}
+          >
+            {sidebarCollapsed ? <PanelLeftOpen size={16} className="text-[#FF5A1F]" /> : <PanelLeftClose size={16} />}
+          </button>
         </div>
 
         {/* District Selector & Status */}
-        <div className="pt-2 border-t border-neutral-900/90 flex flex-col gap-2">
-          <div className="flex items-center justify-between gap-2">
-            <label className="text-[11px] text-neutral-400 font-medium">District:</label>
-            <select
-              value={selectedDistrict}
-              onChange={(e) => setSelectedDistrict(e.target.value)}
-              className="text-xs bg-neutral-900 border border-neutral-750 text-neutral-200 rounded px-2 py-1 font-semibold focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1 max-w-[140px]"
-            >
-              {districts.map((d) => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex items-center justify-between bg-emerald-950/40 border border-emerald-800/50 text-emerald-400 px-2.5 py-1 rounded text-[10px] font-semibold font-mono">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>ACTIVE SYSTEM</span>
+        {!sidebarCollapsed ? (
+          <div className="pt-2 border-t border-white/8 flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <label className="text-[11px] text-[#9A9A9A] font-medium">District:</label>
+              <select
+                value={selectedDistrict}
+                onChange={(e) => setSelectedDistrict(e.target.value)}
+                className="text-xs bg-[#232323] border border-white/10 text-white rounded-xl px-2.5 py-1 font-semibold focus:outline-none focus:ring-1 focus:ring-[#FF5A1F] flex-1 max-w-[140px]"
+              >
+                {districts.map((d) => (
+                  <option key={d} value={d} className="bg-[#1C1C1C]">{d}</option>
+                ))}
+              </select>
             </div>
-            <span className="text-neutral-500 text-[9px]">ODISHA</span>
+
+            <div className="flex items-center justify-between bg-[#2ECC71]/10 border border-[#2ECC71]/30 text-[#2ECC71] px-2.5 py-1 rounded-xl text-[10px] font-bold font-mono">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#2ECC71] animate-pulse" />
+                <span>ACTIVE SYSTEM</span>
+              </div>
+              <span className="text-[#9A9A9A] text-[9px]">ODISHA</span>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="pt-1 border-t border-white/8 flex justify-center">
+            <div
+              className="w-8 h-8 rounded-xl bg-[#2ECC71]/10 border border-[#2ECC71]/30 flex items-center justify-center text-[#2ECC71]"
+              title={`District: ${selectedDistrict} · ACTIVE SYSTEM ODISHA`}
+            >
+              <span className="w-2.5 h-2.5 rounded-full bg-[#2ECC71] animate-pulse" />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Navigation Links Area */}
-      <div className="flex-1 overflow-y-auto py-3 px-3 space-y-4 scrollbar-thin scrollbar-thumb-neutral-800">
+      <div className="flex-1 overflow-y-auto py-3 px-2.5 space-y-3.5 scrollbar-thin scrollbar-thumb-white/10">
         {workspaceNav.map((grp) => (
           <div key={grp.group} className="space-y-1">
-            <div className="px-2 text-[10px] font-mono font-bold text-neutral-500 uppercase tracking-wider mb-1 flex items-center justify-between">
-              <span>{grp.group}</span>
-              <span className="h-px bg-neutral-850 flex-1 ml-2" />
-            </div>
+            {!sidebarCollapsed ? (
+              <div className="px-2 text-[10px] font-mono font-bold text-[#6B6B6B] uppercase tracking-wider mb-1 flex items-center justify-between">
+                <span>{grp.group}</span>
+                <span className="h-px bg-white/5 flex-1 ml-2" />
+              </div>
+            ) : (
+              <div className="h-px bg-white/8 my-2 mx-1" />
+            )}
 
             {grp.items.map(({ path, label, icon: Icon }) => {
               const isActive = location.pathname === path || (path !== '/workspace' && location.pathname.startsWith(path));
@@ -120,17 +155,18 @@ export function WorkspaceSidebar() {
                   key={path}
                   to={path}
                   end={path === '/workspace'}
-                  className={`group flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold transition-all ${
+                  title={sidebarCollapsed ? label : undefined}
+                  className={`group flex items-center ${sidebarCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2'} rounded-xl text-xs font-semibold transition-all ${
                     isActive
-                      ? 'bg-blue-600/15 text-white font-bold border border-blue-500/40 shadow-xs'
-                      : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900/80'
+                      ? 'bg-[#FF5A1F]/15 text-white font-bold border border-[#FF5A1F] shadow-[0_0_12px_rgba(255,90,31,0.2)]'
+                      : 'text-[#9A9A9A] hover:text-white hover:bg-[#232323]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <Icon size={15} className={`shrink-0 transition-colors ${isActive ? 'text-blue-400' : 'text-neutral-400 group-hover:text-neutral-300'}`} />
-                    <span className="truncate">{label}</span>
+                    <Icon size={16} className={`shrink-0 transition-colors ${isActive ? 'text-[#FF5A1F]' : 'text-[#9A9A9A] group-hover:text-white'}`} />
+                    {!sidebarCollapsed && <span className="truncate">{label}</span>}
                   </div>
-                  {isActive && <ChevronRight size={13} className="text-blue-400 shrink-0" />}
+                  {!sidebarCollapsed && isActive && <ChevronRight size={13} className="text-[#FF5A1F] shrink-0" />}
                 </NavLink>
               );
             })}
@@ -139,36 +175,53 @@ export function WorkspaceSidebar() {
       </div>
 
       {/* Live Authoritative Feeds Footer */}
-      <div className="p-3 border-t border-neutral-850 bg-neutral-950/90 space-y-2 text-[10px] font-mono">
-        <div className="flex items-center justify-between text-neutral-400 pb-1 border-b border-neutral-900">
-          <div className="flex items-center gap-1.5 text-neutral-300 uppercase">
-            <Radio size={12} className="text-emerald-400 animate-pulse" />
-            <span className="font-bold">FEEDS STATUS</span>
-          </div>
-          <div className="flex items-center gap-1 text-neutral-500">
-            <RefreshCw size={9} className="animate-spin text-neutral-600" />
-            <span>Sync 60s</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-1.5 pt-0.5">
-          {agencyStatuses.slice(0, 4).map((agency, i) => (
-            <div key={i} className="flex items-center justify-between px-1.5 py-1 rounded bg-neutral-900/60 border border-neutral-850">
-              <span className="font-bold text-neutral-300 text-[9.5px]">{agency.agency}</span>
-              <span className={`w-1.5 h-1.5 rounded-full ${agency.status === 'fresh' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+      <div className="p-3 border-t border-white/8 bg-[#141414] space-y-2 text-[10px] font-mono">
+        {!sidebarCollapsed ? (
+          <>
+            <div className="flex items-center justify-between text-[#9A9A9A] pb-1 border-b border-white/5">
+              <div className="flex items-center gap-1.5 text-white uppercase">
+                <Radio size={12} className="text-[#2ECC71] animate-pulse" />
+                <span className="font-bold">FEEDS STATUS</span>
+              </div>
+              <div className="flex items-center gap-1 text-[#9A9A9A]">
+                <RefreshCw size={9} className="animate-spin text-[#9A9A9A]" />
+                <span>Sync 60s</span>
+              </div>
             </div>
-          ))}
-        </div>
 
-        {/* Exit Public Explore Button */}
-        <button
-          onClick={() => navigate('/')}
-          className="w-full mt-2 flex items-center justify-center gap-2 py-1.5 px-3 rounded border border-neutral-800 hover:border-neutral-700 bg-neutral-900 hover:bg-neutral-850 text-neutral-300 hover:text-white transition-all text-xs font-semibold"
-          title="Return to Public Explore Landing"
-        >
-          <LogOut size={13} className="text-neutral-400" />
-          <span>Public Explore</span>
-        </button>
+            <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+              {agencyStatuses.slice(0, 4).map((agency, i) => (
+                <div key={i} className="flex items-center justify-between px-2 py-1 rounded-lg bg-[#232323] border border-white/5">
+                  <span className="font-bold text-white text-[9.5px]">{agency.agency}</span>
+                  <span className={`w-1.5 h-1.5 rounded-full ${agency.status === 'fresh' ? 'bg-[#2ECC71]' : 'bg-[#FFB020]'}`} />
+                </div>
+              ))}
+            </div>
+
+            {/* Exit Public Explore Button */}
+            <button
+              onClick={() => navigate('/')}
+              className="w-full mt-2 flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-white/10 hover:border-white/20 bg-[#232323] hover:bg-white/10 text-white transition-all text-xs font-bold cursor-pointer"
+              title="Return to Public Explore Landing"
+            >
+              <LogOut size={13} className="text-[#FF5A1F]" />
+              <span>Public Explore</span>
+            </button>
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-2 py-1">
+            <div className="flex flex-col items-center gap-1" title="Live Feeds Active (Sync 60s)">
+              <Radio size={14} className="text-[#2ECC71] animate-pulse" />
+            </div>
+            <button
+              onClick={() => navigate('/')}
+              className="w-9 h-9 flex items-center justify-center rounded-xl border border-white/10 bg-[#232323] hover:bg-white/10 text-white transition-all cursor-pointer"
+              title="Return to Public Explore Landing"
+            >
+              <LogOut size={14} className="text-[#FF5A1F]" />
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   );
