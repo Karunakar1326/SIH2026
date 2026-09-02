@@ -95,6 +95,140 @@ body {
   border-radius: 3px;
 }
 
+/* ══════════════════════════════════════════════
+   LANDING PAGE — GRID BACKGROUND
+   A fixed, full-page grid overlay so the pattern
+   is consistent across all sections regardless
+   of individual section background colours.
+══════════════════════════════════════════════ */
+.landing-grid-bg {
+  position: relative;
+  isolation: isolate;
+}
+
+.landing-grid-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+
+  /* Two-layer grid: large squares + small subdivisions */
+  background-image:
+    /* Major grid — 80px cells */
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    /* Minor grid — 20px cells */
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size:
+    80px 80px,
+    80px 80px,
+    20px 20px,
+    20px 20px;
+
+  /* Vignette — softer fade, wider visible zone */
+  -webkit-mask-image: radial-gradient(ellipse 110% 110% at 50% 50%, black 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse 110% 110% at 50% 50%, black 55%, transparent 100%);
+}
+
+/* Ensure all direct children of .landing-grid-bg sit above the grid */
+.landing-grid-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* ══════════════════════════════════════════════
+   TEXT REVEAL ANIMATIONS
+   Premium word / character entrance effects
+   used on landing page headings and labels.
+══════════════════════════════════════════════ */
+
+/* Word slide-up + fade — apply to each <span> word wrapper */
+@keyframes wordReveal {
+  from {
+    opacity: 0;
+    transform: translateY(28px) skewY(2deg);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) skewY(0deg);
+    filter: blur(0);
+  }
+}
+
+/* Char shimmer — subtle letter shimmer on entry */
+@keyframes charReveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Label fade-in + letter-spacing expand */
+@keyframes labelReveal {
+  from {
+    opacity: 0;
+    letter-spacing: 0.05em;
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.3em;
+    filter: blur(0);
+  }
+}
+
+/* Gradient text shimmer sweep */
+@keyframes gradientShimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Word reveal class */
+.word-reveal {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.word-reveal span {
+  display: inline-block;
+  animation: wordReveal 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Animated gradient headline */
+.animate-gradient-text {
+  background-size: 200% 200%;
+  animation: gradientShimmer 4s ease infinite;
+}
+
+/* Label reveal */
+.label-reveal {
+  animation: labelReveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Smooth transition on all text elements in the landing page */
+.landing-grid-bg h1,
+.landing-grid-bg h2,
+.landing-grid-bg h3,
+.landing-grid-bg p,
+.landing-grid-bg span,
+.landing-grid-bg button {
+  transition: color 0.3s ease, opacity 0.3s ease;
+}
+
+
+
 /* === MapLibre Overrides === */
 .maplibregl-popup-content {
   padding: 0 !important;
