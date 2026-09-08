@@ -2,30 +2,39 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAppStore } from '@/stores';
 import { agencyStatuses } from '@/data/alerts';
 import {
-  Shield, Radio, RefreshCw, LayoutDashboard, AlertTriangle, History,
-  Building2, ArrowRightLeft, MapPin, BarChart3, ClipboardCheck,
-  BookOpen, Settings, SlidersHorizontal, LogOut, Sparkles
+  Shield, Radio, RefreshCw, Eye, Activity, AlertTriangle, Gauge,
+  Map, Users, History, ClipboardCheck, ArrowRightLeft, MapPin,
+  Building2, Route, BarChart3, BookOpen, Settings, LogOut
 } from 'lucide-react';
 
 const workspaceNav = [
-  { group: 'MONITOR', items: [{ path: '/workspace', label: 'Situation Overview', icon: LayoutDashboard }] },
-  { group: 'ASSESS', items: [
-    { path: '/workspace/risk', label: 'Risk Intelligence', icon: AlertTriangle },
-    { path: '/workspace/communities', label: 'Habitation Intelligence', icon: Building2 },
-    { path: '/workspace/historical', label: 'Historical Disaster Intelligence', icon: History },
+  { group: 'OVERVIEW', items: [
+    { path: '/workspace', label: 'Situation Overview', icon: Eye },
   ]},
-  { group: 'PLAN', items: [
-    { path: '/workspace/relocation', label: 'Relocation Priority', icon: ArrowRightLeft },
-    { path: '/workspace/safe-sites', label: 'Safe Sites & Capacity', icon: MapPin },
-    { path: '/workspace/optimization', label: 'Relocation Optimization', icon: SlidersHorizontal },
-    { path: '/workspace/scenarios', label: 'Scenarios & What-If', icon: Sparkles },
+  { group: 'MONITOR', items: [
+    { path: '/workspace/monitor', label: 'Live Conditions', icon: Activity },
+    { path: '/workspace/early-warning', label: 'Early Warning', icon: AlertTriangle },
   ]},
-  { group: 'OPERATE', items: [{ path: '/workspace/field-verification', label: 'Field Verification', icon: ClipboardCheck }] },
-  { group: 'REVIEW', items: [
-    { path: '/workspace/reports', label: 'Reports & Action Plans', icon: BarChart3 },
-    { path: '/workspace/data-methodology', label: 'Data & Methodology', icon: BookOpen },
+  { group: 'RISK INTELLIGENCE', items: [
+    { path: '/workspace/intensity', label: 'Intensity', icon: Gauge },
+    { path: '/workspace/risk-map', label: 'Risk Map', icon: Map },
+    { path: '/workspace/exposure', label: 'Exposure', icon: Users },
+    { path: '/workspace/historical', label: 'Historical', icon: History },
   ]},
-  { group: 'SYSTEM', items: [{ path: '/workspace/settings', label: 'Administration', icon: Settings }] },
+  { group: 'FIELD OPS', items: [
+    { path: '/workspace/field-verification', label: 'Verification', icon: ClipboardCheck },
+  ]},
+  { group: 'RELOCATION', items: [
+    { path: '/workspace/relocation', label: 'Priority', icon: ArrowRightLeft },
+    { path: '/workspace/safe-sites', label: 'Safe Sites', icon: MapPin },
+    { path: '/workspace/capacity', label: 'Capacity', icon: Building2 },
+    { path: '/workspace/planner', label: 'Planner', icon: Route },
+  ]},
+  { group: 'SYSTEM', items: [
+    { path: '/workspace/reports', label: 'Reports', icon: BarChart3 },
+    { path: '/workspace/data-methodology', label: 'Data', icon: BookOpen },
+    { path: '/workspace/settings', label: 'Settings', icon: Settings },
+  ]},
 ];
 
 export function WorkspaceHeader() {

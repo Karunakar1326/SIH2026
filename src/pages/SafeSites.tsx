@@ -239,7 +239,7 @@ export function SafeSites() {
                   )}
 
                   <button
-                    onClick={() => navigate('/workspace/optimization')}
+                    onClick={() => navigate('/workspace/planner')}
                     className="w-full py-3 bg-gradient-to-r from-[#FF7A3D] to-[#FF3D1F] text-white font-bold rounded-xl shadow-[0_0_24px_rgba(255,90,31,0.35)] hover:shadow-[0_0_36px_rgba(255,90,31,0.55)] transition-all cursor-pointer"
                   >
                     Run Optimization Assignment →

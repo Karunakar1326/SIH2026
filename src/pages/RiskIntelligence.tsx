@@ -8,12 +8,22 @@ import { habitations } from '@/data/habitations';
 import { useMapStore } from '@/stores';
 import { riskColor, formatNumber } from '@/utils/helpers';
 import type { HazardType, RiskLevel } from '@/data/types';
-import { Filter, X, ShieldAlert } from 'lucide-react';
+import { Filter, X, ShieldAlert, Map } from 'lucide-react';
+
+const riskTypeOptions = [
+  { value: 'overall', label: 'Overall Risk', icon: '🎯' },
+  { value: 'flood', label: 'Flood', icon: '🌊' },
+  { value: 'cyclone', label: 'Cyclone', icon: '🌀' },
+  { value: 'landslide', label: 'Landslide', icon: '⛰️' },
+  { value: 'extreme_rainfall', label: 'Extreme Rainfall', icon: '⛈️' },
+  { value: 'coastal_erosion', label: 'Coastal Erosion', icon: '🏖️' },
+];
 
 export function RiskIntelligence() {
   const navigate = useNavigate();
   const layers = useMapStore((s) => s.layers);
   const toggleLayer = useMapStore((s) => s.toggleLayer);
+  const [riskType, setRiskType] = useState('overall');
   const [filterOpen, setFilterOpen] = useState(true);
   const [hazardFilter, setHazardFilter] = useState<HazardType | 'all'>('all');
   const [riskFilter, setRiskFilter] = useState<RiskLevel | 'all'>('all');
@@ -32,17 +42,40 @@ export function RiskIntelligence() {
   return (
     <div className="flex flex-col h-full bg-[#141414] text-[#F5F5F5] overflow-hidden">
       <PageHeader
-        title="Risk & Red-Zone Intelligence"
-        subtitle="Multi-hazard spatial risk evaluation and authoritative red-zone identification engine"
+        title="Dynamic Risk Map"
+        subtitle="Unified multi-hazard spatial risk visualization — Hazard + Intensity + Exposure + Vulnerability = Dynamic Risk"
         actions={
-          <button
-            onClick={() => setFilterOpen(!filterOpen)}
-            className={`flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-xl transition-all cursor-pointer ${
-              filterOpen ? 'bg-gradient-to-r from-[#FF7A3D] to-[#FF3D1F] text-white shadow-[0_0_20px_rgba(255,90,31,0.4)]' : 'bg-[#232323] border border-white/10 text-white hover:bg-white/10'
-            }`}
-          >
-            <Filter size={13} /> Filters
-          </button>
+          <div className="flex items-center gap-3">
+            {/* Risk Type Selector */}
+            <div className="flex items-center gap-2 bg-[#1C1C1C] border border-white/10 px-3 py-1.5 rounded-xl">
+              <Map size={13} className="text-[#FF5A1F]" />
+              <select
+                value={riskType}
+                onChange={(e) => setRiskType(e.target.value)}
+                className="text-xs bg-transparent text-white font-bold focus:outline-none cursor-pointer"
+              >
+                {riskTypeOptions.map(opt => (
+                  <option key={opt.value} value={opt.value} className="bg-[#1C1C1C]">
+                    {opt.icon} {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {/* Risk Legend */}
+            <div className="flex items-center gap-2 text-[10px] font-bold">
+              <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#FF4D4D]"/>HIGH</span>
+              <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#FFB020]"/>MODERATE</span>
+              <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#2ECC71]"/>LOW</span>
+            </div>
+            <button
+              onClick={() => setFilterOpen(!filterOpen)}
+              className={`flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-xl transition-all cursor-pointer ${
+                filterOpen ? 'bg-gradient-to-r from-[#FF7A3D] to-[#FF3D1F] text-white shadow-[0_0_20px_rgba(255,90,31,0.4)]' : 'bg-[#232323] border border-white/10 text-white hover:bg-white/10'
+              }`}
+            >
+              <Filter size={13} /> Filters
+            </button>
+          </div>
         }
       />
 
@@ -175,10 +208,10 @@ export function RiskIntelligence() {
                     {selectedHab.risk_score} <span className="text-xs text-[#6B6B6B] font-normal">/100</span>
                   </span>
                   <button
-                    onClick={() => navigate(`/workspace/communities/${selectedHab.id}`)}
+                    onClick={() => navigate(`/workspace/exposure/${selectedHab.id}`)}
                     className="text-xs font-bold text-[#FF5A1F] hover:underline"
                   >
-                    Open 360° Profile →
+                    Open Exposure Profile →
                   </button>
                 </div>
               </div>

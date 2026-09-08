@@ -51,7 +51,7 @@ export function Habitations() {
 
   return (
     <div className="flex flex-col h-full bg-[#141414] text-[#F5F5F5] overflow-hidden">
-      <PageHeader title="Habitations Register" subtitle={`${habitations.length} settlements evaluated across all coastal districts`} />
+      <PageHeader title="Exposure & Vulnerability Analysis" subtitle={`Who and what is exposed? — ${habitations.length} settlements evaluated across all coastal districts`} />
 
       {/* Filters Toolbar */}
       <div className="px-6 py-3 bg-[#141414] border-b border-white/8 flex items-center gap-4 flex-wrap text-[#F5F5F5]">
@@ -119,7 +119,7 @@ export function Habitations() {
               {filtered.map((hab) => (
                 <tr
                   key={hab.id}
-                  onClick={() => navigate(`/workspace/communities/${hab.id}`)}
+                  onClick={() => navigate(`/workspace/exposure/${hab.id}`)}
                   className="hover:bg-[#232323] cursor-pointer transition-colors"
                 >
                   <td className="py-3 px-3">

@@ -47,7 +47,7 @@ export function CommandCenter() {
             </span>
           </div>
           <button
-            onClick={() => navigate(`/habitations/${dynamicNotifications[0].habitationId}`)}
+            onClick={() => navigate(`/workspace/exposure/${dynamicNotifications[0].habitationId}`)}
             className="text-[11px] underline text-[#FFB020] font-sans font-bold hover:text-white transition-colors"
           >
             Inspect Assessment →
@@ -74,7 +74,7 @@ export function CommandCenter() {
           <div className="px-4 py-2.5 bg-[#232323] text-white text-xs font-bold flex items-center justify-between z-10 shrink-0 border-b border-white/8">
             <div className="flex items-center gap-2">
               <Radio size={14} className="text-[#2ECC71] animate-pulse" />
-              <span className="tracking-tight font-black">GEOSPATIAL COMMAND CENTER MAP — RED-ZONE & HAZARD OVERLAY</span>
+              <span className="tracking-tight font-black">SITUATION OVERVIEW — GEOSPATIAL COMMAND MAP</span>
             </div>
             <span className="text-[10px] text-[#9A9A9A] font-mono">ISRO CartoDEM + IMD Track + CWC Inundation Layer</span>
           </div>
@@ -82,7 +82,7 @@ export function CommandCenter() {
           <div className="flex-1 relative">
             <RiskMap
               height="100%"
-              onHabitationClick={(id) => navigate(`/workspace/communities/${id}`)}
+              onHabitationClick={(id) => navigate(`/workspace/exposure/${id}`)}
               onEventClick={() => navigate('/workspace/historical')}
               onSiteClick={() => navigate('/workspace/safe-sites')}
             />
@@ -134,7 +134,7 @@ export function CommandCenter() {
                 {redZoneHabitations.map((hab) => (
                   <div
                     key={hab.id}
-                    onClick={() => navigate(`/habitations/${hab.id}`)}
+                    onClick={() => navigate(`/workspace/exposure/${hab.id}`)}
                     className="p-3.5 hover:bg-[#232323] cursor-pointer transition-colors"
                   >
                     <div className="flex items-start justify-between">

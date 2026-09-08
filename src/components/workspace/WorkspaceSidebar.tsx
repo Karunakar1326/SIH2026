@@ -2,52 +2,59 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAppStore } from '@/stores';
 import { agencyStatuses } from '@/data/alerts';
 import {
-  Shield, Radio, RefreshCw, LayoutDashboard, AlertTriangle, History,
-  Building2, ArrowRightLeft, MapPin, BarChart3, ClipboardCheck,
-  BookOpen, Settings, SlidersHorizontal, LogOut, ChevronRight, PanelLeftClose, PanelLeftOpen, Sparkles
+  Shield, Radio, RefreshCw, Eye, Activity, AlertTriangle, Gauge,
+  Map, Users, History, ClipboardCheck, ArrowRightLeft, MapPin,
+  Building2, Route, BarChart3, BookOpen, Settings, LogOut,
+  ChevronRight, PanelLeftClose, PanelLeftOpen, ChevronDown
 } from 'lucide-react';
+import { useState } from 'react';
 
 const workspaceNav = [
   {
+    group: 'OVERVIEW',
+    items: [
+      { path: '/workspace', label: 'Situation Overview', icon: Eye }
+    ]
+  },
+  {
     group: 'MONITOR',
     items: [
-      { path: '/workspace', label: 'Situation Overview', icon: LayoutDashboard }
+      { path: '/workspace/monitor', label: 'Live Conditions', icon: Activity },
+      { path: '/workspace/early-warning', label: 'Early Warning', icon: AlertTriangle },
     ]
   },
   {
-    group: 'ASSESS',
+    group: 'RISK INTELLIGENCE',
     items: [
-      { path: '/workspace/risk', label: 'Risk Intelligence', icon: AlertTriangle },
-      { path: '/workspace/communities', label: 'Habitation Intelligence', icon: Building2 },
-      { path: '/workspace/historical', label: 'Historical Disaster Intelligence', icon: History },
+      { path: '/workspace/intensity', label: 'Intensity Assessment', icon: Gauge },
+      { path: '/workspace/risk-map', label: 'Dynamic Risk Map', icon: Map },
+      { path: '/workspace/exposure', label: 'Exposure & Vulnerability', icon: Users },
+      { path: '/workspace/historical', label: 'Historical Events', icon: History },
     ]
   },
   {
-    group: 'PLAN',
-    items: [
-      { path: '/workspace/relocation', label: 'Relocation Priority', icon: ArrowRightLeft },
-      { path: '/workspace/safe-sites', label: 'Safe Sites & Capacity', icon: MapPin },
-      { path: '/workspace/optimization', label: 'Relocation Optimization', icon: SlidersHorizontal },
-      { path: '/workspace/scenarios', label: 'Scenarios & What-If', icon: Sparkles },
-    ]
-  },
-  {
-    group: 'OPERATE',
+    group: 'FIELD OPERATIONS',
     items: [
       { path: '/workspace/field-verification', label: 'Field Verification', icon: ClipboardCheck }
     ]
   },
   {
-    group: 'REVIEW',
+    group: 'RELOCATION',
     items: [
-      { path: '/workspace/reports', label: 'Reports & Action Plans', icon: BarChart3 },
-      { path: '/workspace/data-methodology', label: 'Data & Methodology', icon: BookOpen },
+      { path: '/workspace/relocation', label: 'Priority', icon: ArrowRightLeft },
+      { path: '/workspace/safe-sites', label: 'Safe Locations', icon: MapPin },
+      { path: '/workspace/capacity', label: 'Capacity & Accessibility', icon: Building2 },
+      { path: '/workspace/planner', label: 'Relocation Planner', icon: Route },
     ]
   },
   {
     group: 'SYSTEM',
+    collapsible: true,
     items: [
-      { path: '/workspace/settings', label: 'Administration', icon: Settings }
+      { path: '/workspace/reports', label: 'Reports', icon: BarChart3 },
+      { path: '/workspace/analytics', label: 'Analytics', icon: BarChart3 },
+      { path: '/workspace/data-methodology', label: 'Data & Methodology', icon: BookOpen },
+      { path: '/workspace/settings', label: 'Settings', icon: Settings },
     ]
   },
 ];
@@ -60,6 +67,7 @@ export function WorkspaceSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const districts = ['All Districts', 'Ganjam', 'Puri', 'Jagatsinghpur', 'Kendrapara', 'Balasore'];
+  const [systemExpanded, setSystemExpanded] = useState(false);
 
   return (
     <aside
@@ -137,41 +145,61 @@ export function WorkspaceSidebar() {
 
       {/* Navigation Links Area */}
       <div className="flex-1 overflow-y-auto py-3 px-2.5 space-y-3.5 scrollbar-thin scrollbar-thumb-white/10">
-        {workspaceNav.map((grp) => (
-          <div key={grp.group} className="space-y-1">
-            {!sidebarCollapsed ? (
-              <div className="px-2 text-[10px] font-mono font-bold text-[#6B6B6B] uppercase tracking-wider mb-1 flex items-center justify-between">
-                <span>{grp.group}</span>
-                <span className="h-px bg-white/5 flex-1 ml-2" />
-              </div>
-            ) : (
-              <div className="h-px bg-white/8 my-2 mx-1" />
-            )}
+        {workspaceNav.map((grp) => {
+          const isCollapsible = 'collapsible' in grp && grp.collapsible;
+          const isExpanded = !isCollapsible || systemExpanded;
 
-            {grp.items.map(({ path, label, icon: Icon }) => {
-              const isActive = location.pathname === path || (path !== '/workspace' && location.pathname.startsWith(path));
-              return (
-                <NavLink
-                  key={path}
-                  to={path}
-                  end={path === '/workspace'}
-                  title={sidebarCollapsed ? label : undefined}
-                  className={`group flex items-center ${sidebarCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2'} rounded-xl text-xs font-semibold transition-all ${
-                    isActive
-                      ? 'bg-[#FF5A1F]/15 text-white font-bold border border-[#FF5A1F] shadow-[0_0_12px_rgba(255,90,31,0.2)]'
-                      : 'text-[#9A9A9A] hover:text-white hover:bg-[#232323]'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <Icon size={16} className={`shrink-0 transition-colors ${isActive ? 'text-[#FF5A1F]' : 'text-[#9A9A9A] group-hover:text-white'}`} />
-                    {!sidebarCollapsed && <span className="truncate">{label}</span>}
+          return (
+            <div key={grp.group} className="space-y-1">
+              {!sidebarCollapsed ? (
+                isCollapsible ? (
+                  <button
+                    onClick={() => setSystemExpanded(!systemExpanded)}
+                    className="w-full px-2 text-[10px] font-mono font-bold text-[#6B6B6B] uppercase tracking-wider mb-1 flex items-center justify-between cursor-pointer hover:text-[#9A9A9A] transition-colors"
+                  >
+                    <span className="flex items-center gap-1">
+                      <span>{grp.group}</span>
+                    </span>
+                    <ChevronDown size={12} className={`transition-transform ${systemExpanded ? 'rotate-180' : ''}`} />
+                  </button>
+                ) : (
+                  <div className="px-2 text-[10px] font-mono font-bold text-[#6B6B6B] uppercase tracking-wider mb-1 flex items-center justify-between">
+                    <span>{grp.group}</span>
+                    <span className="h-px bg-white/5 flex-1 ml-2" />
                   </div>
-                  {!sidebarCollapsed && isActive && <ChevronRight size={13} className="text-[#FF5A1F] shrink-0" />}
-                </NavLink>
-              );
-            })}
-          </div>
-        ))}
+                )
+              ) : (
+                <div className="h-px bg-white/8 my-2 mx-1" />
+              )}
+
+              {isExpanded && grp.items.map(({ path, label, icon: Icon }) => {
+                const isActive = location.pathname === path || (path !== '/workspace' && location.pathname.startsWith(path + '/'));
+                const isExactActive = location.pathname === path;
+                const finalActive = path === '/workspace' ? isExactActive : isActive;
+
+                return (
+                  <NavLink
+                    key={path}
+                    to={path}
+                    end={path === '/workspace'}
+                    title={sidebarCollapsed ? label : undefined}
+                    className={`group flex items-center ${sidebarCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2'} rounded-xl text-xs font-semibold transition-all ${
+                      finalActive
+                        ? 'bg-[#FF5A1F]/15 text-white font-bold border border-[#FF5A1F] shadow-[0_0_12px_rgba(255,90,31,0.2)]'
+                        : 'text-[#9A9A9A] hover:text-white hover:bg-[#232323]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Icon size={16} className={`shrink-0 transition-colors ${finalActive ? 'text-[#FF5A1F]' : 'text-[#9A9A9A] group-hover:text-white'}`} />
+                      {!sidebarCollapsed && <span className="truncate">{label}</span>}
+                    </div>
+                    {!sidebarCollapsed && finalActive && <ChevronRight size={13} className="text-[#FF5A1F] shrink-0" />}
+                  </NavLink>
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
 
       {/* Live Authoritative Feeds Footer */}

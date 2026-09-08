@@ -18,8 +18,8 @@ export function RelocationOptimization() {
   return (
     <div className="flex flex-col h-full bg-[#141414] text-[#F5F5F5] overflow-hidden">
       <PageHeader
-        title="Relocation Optimization Simulator"
-        subtitle="Population-to-site matching engine, scenario comparison, remaining site capacity tracking, and infrastructure stress modeling"
+        title="Relocation Planner"
+        subtitle="Who goes where, through which route, and with what priority? — People → Destination → Route → Priority → Capacity"
         actions={
           <div className="flex bg-[#1C1C1C] border border-white/10 p-1 rounded-2xl text-xs font-semibold">
             <button

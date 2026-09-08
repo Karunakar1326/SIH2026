@@ -53,7 +53,7 @@ export function PhasedRelocationPlan() {
                 {phaseHabs.map((hab) => (
                   <div
                     key={hab.id}
-                    onClick={() => navigate(`/workspace/communities/${hab.id}`)}
+                    onClick={() => navigate(`/workspace/exposure/${hab.id}`)}
                     className="bg-white border border-neutral-200 rounded p-2.5 text-xs hover:border-accent hover:shadow-2xs cursor-pointer transition-all flex items-center justify-between"
                   >
                     <div>

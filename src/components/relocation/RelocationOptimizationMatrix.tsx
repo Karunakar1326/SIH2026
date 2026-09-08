@@ -86,7 +86,7 @@ export function RelocationOptimizationMatrix() {
                 </td>
                 <td className="py-3 px-4 text-right">
                   <button
-                    onClick={() => navigate(`/workspace/communities/${a.habitationId}`)}
+                    onClick={() => navigate(`/workspace/exposure/${a.habitationId}`)}
                     className="text-xs text-[#FF5A1F] font-bold hover:underline flex items-center gap-1 ml-auto cursor-pointer"
                   >
                     Details <ArrowRight size={12} />
