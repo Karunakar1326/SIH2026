@@ -15,6 +15,7 @@ interface RiskMapProps {
   showControls?: boolean;
   showLegend?: boolean;
   showLayerPanel?: boolean;
+  selectedHazard?: string;
   onHabitationClick?: (id: string) => void;
   onEventClick?: (id: string) => void;
   onSiteClick?: (id: string) => void;
@@ -29,6 +30,7 @@ export function RiskMap({
   showControls = true,
   showLegend = true,
   showLayerPanel = true,
+  selectedHazard = 'overall',
   onHabitationClick,
   onEventClick,
   onSiteClick,
@@ -40,6 +42,13 @@ export function RiskMap({
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [layerPanelOpen, setLayerPanelOpen] = useState(false);
+  const [isFading, setIsFading] = useState(false);
+
+  useEffect(() => {
+    setIsFading(true);
+    const timer = setTimeout(() => setIsFading(false), 250);
+    return () => clearTimeout(timer);
+  }, [selectedHazard]);
 
   // GraphHopper Routing States
   const [selectedHabId, setSelectedHabId] = useState<string>(highlightHabitationId || 'hab-001');
@@ -256,11 +265,13 @@ export function RiskMap({
       style: {
         version: 8,
         sources: {
-          'light-basemap': {
+          'dark-basemap': {
             type: 'raster',
             tiles: [
-              'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-              'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+              'https://a.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}@2x.png',
+              'https://b.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}@2x.png',
+              'https://c.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}@2x.png',
+              'https://d.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}@2x.png',
             ],
             tileSize: 256,
             attribution: '© OpenStreetMap contributors © CARTO',
@@ -268,9 +279,9 @@ export function RiskMap({
         },
         layers: [
           {
-            id: 'light-basemap-layer',
+            id: 'dark-basemap-layer',
             type: 'raster',
-            source: 'light-basemap',
+            source: 'dark-basemap',
             minzoom: 0,
             maxzoom: 19,
           },
@@ -319,7 +330,7 @@ export function RiskMap({
 
   return (
     <div className={`relative ${className}`} style={{ height }}>
-      <div ref={mapContainer} className="w-full h-full rounded-2xl overflow-hidden border border-white/10" />
+      <div ref={mapContainer} className={`w-full h-full rounded-2xl overflow-hidden border border-white/10 transition-opacity duration-300 ${isFading ? 'opacity-30 ease-out' : 'opacity-100 ease-in'}`} />
 
       {/* GraphHopper API Live Status Badge */}
       <div className="absolute top-3 left-14 z-10 flex items-center gap-2.5 bg-[#1C1C1C]/90 backdrop-blur-md text-white text-[11px] font-mono px-3.5 py-1.5 rounded-2xl shadow-xl border border-white/10">
